@@ -1,0 +1,293 @@
+# LogBook Project Issues
+
+This document catalogs all issues encountered during the development of the LogBook project, as well as potential issues that could arise. Issues are categorized into Database, Backend, and Frontend sections.
+
+## Database Issues
+
+### Encountered Issues
+
+1. **Schema Design Complexity**
+   - Description: Initial database schema was overly complex with unnecessary relationships.
+   - Impact: Made queries more complex and reduced performance.
+   - Solution: Simplified schema design by reducing table relationships and normalizing data structure.
+
+2. **Migration Errors**
+   - Description: Errors during database migrations when adding new fields.
+   - Impact: Development delays and potential data loss.
+   - Solution: Implemented proper migration testing and backup procedures before applying migrations.
+
+3. **Connection Pool Exhaustion**
+   - Description: Database connection pool was being exhausted during high traffic periods.
+   - Impact: Application timeouts and slow response times.
+   - Solution: Implemented proper connection pooling configuration and ensured connections were properly closed.
+
+4. **SQL Injection Vulnerabilities**
+   - Description: Initial implementation had SQL injection vulnerabilities in raw queries.
+   - Impact: Security risk for user data.
+   - Solution: Replaced raw SQL queries with SQLAlchemy ORM to prevent SQL injection.
+
+5. **Inefficient Query Patterns**
+   - Description: N+1 query problems when fetching related data for log entries.
+   - Impact: Excessive database queries causing slow page loads.
+   - Solution: Implemented eager loading with SQLAlchemy's joinedload and subqueryload options.
+
+6. **Timestamp Timezone Issues**
+   - Description: Inconsistent timezone handling in timestamp fields.
+   - Impact: Confusion in reporting and filtering by date/time.
+   - Solution: Standardized all timestamps to UTC in the database with proper conversion in the UI.
+
+7. **Database Index Missing**
+   - Description: Missing indexes on frequently queried fields like created_at, status, and category.
+   - Impact: Slow query performance, especially for reports and filtering.
+   - Solution: Added appropriate indexes on commonly queried fields.
+
+8. **Orphaned Records**
+   - Description: Deleting parent records left orphaned child records.
+   - Impact: Database bloat and potential data integrity issues.
+   - Solution: Implemented proper cascading deletes and foreign key constraints.
+
+### Potential Issues
+
+1. **Database Scaling**
+   - Description: As data grows, database performance could degrade.
+   - Prevention: Implement proper indexing, query optimization, and consider sharding for future scaling.
+
+2. **Data Integrity**
+   - Description: Risk of data corruption during concurrent writes.
+   - Prevention: Implement proper transaction management and locking mechanisms.
+
+3. **Backup and Recovery**
+   - Description: Lack of automated backup procedures could lead to data loss.
+   - Prevention: Implement regular automated backups and test recovery procedures.
+
+## Backend Issues
+
+### Encountered Issues
+
+1. **API Performance**
+   - Description: Slow API response times due to inefficient queries.
+   - Impact: Poor user experience with long loading times.
+   - Solution: Optimized database queries, implemented caching, and reduced unnecessary data fetching.
+
+2. **Memory Leaks**
+   - Description: Memory usage gradually increased over time due to improper resource management.
+   - Impact: Application crashes and restarts required.
+   - Solution: Fixed resource cleanup in long-running processes and implemented proper garbage collection.
+
+3. **Error Handling**
+   - Description: Inadequate error handling led to cryptic error messages.
+   - Impact: Difficult debugging and poor user feedback.
+   - Solution: Implemented comprehensive error handling with meaningful error messages and logging.
+
+4. **Authentication Issues**
+   - Description: Security vulnerabilities in authentication implementation.
+   - Impact: Potential unauthorized access to user data.
+   - Solution: Implemented proper token-based authentication with secure password hashing.
+
+5. **Dependency Management**
+   - Description: Conflicting package versions and outdated dependencies.
+   - Impact: Compatibility issues and security vulnerabilities.
+   - Solution: Implemented proper dependency management with version pinning and regular updates.
+
+6. **Unclosed Database Sessions**
+   - Description: Database sessions were not being properly closed in some request handlers.
+   - Impact: Database connection pool exhaustion and memory leaks.
+   - Solution: Implemented context managers for database sessions and ensured proper cleanup.
+
+7. **Synchronous Blocking Operations**
+   - Description: Long-running operations were blocking the main thread.
+   - Impact: Application appeared unresponsive during heavy operations.
+   - Solution: Moved long-running operations to background tasks and implemented asynchronous processing.
+
+8. **Inadequate Input Validation**
+   - Description: Insufficient validation of user inputs in API endpoints.
+   - Impact: Potential for invalid data and security vulnerabilities.
+   - Solution: Implemented comprehensive input validation using Pydantic models.
+
+9. **Missing API Documentation**
+   - Description: API endpoints lacked proper documentation.
+   - Impact: Difficult for frontend developers to understand and use the API.
+   - Solution: Added comprehensive API documentation using OpenAPI/Swagger.
+
+10. **Inefficient File Handling**
+    - Description: Large file uploads were loaded entirely into memory.
+    - Impact: Memory spikes during file uploads and potential OOM errors.
+    - Solution: Implemented streaming file uploads and proper chunking.
+
+### Potential Issues
+
+1. **API Versioning**
+   - Description: Lack of API versioning could cause issues during updates.
+   - Prevention: Implement proper API versioning to maintain backward compatibility.
+
+2. **Rate Limiting**
+   - Description: No rate limiting could lead to API abuse.
+   - Prevention: Implement rate limiting to prevent abuse and ensure fair usage.
+
+3. **Logging and Monitoring**
+   - Description: Insufficient logging could make troubleshooting difficult.
+   - Prevention: Implement comprehensive logging and monitoring solutions.
+
+## Frontend Issues
+
+### Encountered Issues
+
+1. **Chart Visualization Problems**
+   - Description: Charts were being cut off at the bottom and not fully visible within their containers.
+   - Impact: Poor user experience and incomplete data visualization.
+   - Solution: Adjusted container heights, added padding, and fixed positioning to ensure all chart elements are visible.
+
+2. **Text Color Visibility**
+   - Description: Text in the Export and Scheduled Reports sections was displayed in light gray, making it difficult to read.
+   - Impact: Poor readability and user experience.
+   - Solution: Changed text color to black for better contrast and readability.
+
+3. **Responsive Design Issues**
+   - Description: UI elements did not properly adapt to different screen sizes.
+   - Impact: Poor user experience on mobile and tablet devices.
+   - Solution: Implemented proper responsive design with flexible layouts and breakpoints.
+
+4. **Performance Issues**
+   - Description: Slow UI rendering due to inefficient component updates.
+   - Impact: Laggy user interface and poor user experience.
+   - Solution: Optimized component rendering, implemented virtualization for large lists, and reduced unnecessary re-renders.
+
+5. **Cross-Browser Compatibility**
+   - Description: UI inconsistencies across different browsers.
+   - Impact: Inconsistent user experience.
+   - Solution: Implemented cross-browser testing and fixed browser-specific issues.
+
+6. **Date Picker Visibility**
+   - Description: Date picker had poor contrast and visibility issues.
+   - Impact: Difficult to use date selection functionality.
+   - Solution: Implemented a custom date picker with improved contrast and visibility.
+
+7. **Syntax Errors in Code**
+   - Description: Unclosed brackets and indentation errors in Python code.
+   - Impact: Application crashes and development delays.
+   - Solution: Fixed syntax errors and implemented proper code formatting and linting.
+
+8. **Line Chart Data Distribution**
+   - Description: Line chart data points were clustered on the left side instead of being distributed across the chart width.
+   - Impact: Misleading data visualization and poor user experience.
+   - Solution: Fixed the positioning calculation to properly distribute data points using percentage-based positioning.
+
+9. **Inconsistent Color Schemes**
+   - Description: Inconsistent color usage across different UI components.
+   - Impact: Poor visual coherence and professional appearance.
+   - Solution: Implemented a standardized color palette and applied it consistently across all components.
+
+10. **Form Validation Feedback**
+    - Description: Inadequate visual feedback for form validation errors.
+    - Impact: Users were confused about why forms couldn't be submitted.
+    - Solution: Added clear visual indicators and helpful error messages for form validation.
+
+11. **Modal Dialog Issues**
+    - Description: Modal dialogs didn't properly handle keyboard navigation and focus management.
+    - Impact: Poor accessibility and user experience.
+    - Solution: Implemented proper focus trapping and keyboard navigation in modal dialogs.
+
+12. **Pie Chart Label Overlap**
+    - Description: Labels in pie charts overlapped when segments were small.
+    - Impact: Unreadable labels and poor data visualization.
+    - Solution: Implemented smart label positioning and consolidation of small segments.
+
+13. **Tooltip Positioning**
+    - Description: Chart tooltips were sometimes positioned off-screen.
+    - Impact: Information was not visible to users.
+    - Solution: Implemented smart positioning for tooltips to ensure they remain within viewport.
+
+14. **Theme Switching Issues**
+    - Description: Switching between light and dark themes caused visual glitches.
+    - Impact: Poor user experience during theme changes.
+    - Solution: Improved theme transition handling and ensured all components properly respected theme settings.
+
+### Potential Issues
+
+1. **Accessibility**
+   - Description: Application may not be fully accessible to users with disabilities.
+   - Prevention: Implement WCAG compliance and accessibility testing.
+
+2. **State Management Complexity**
+   - Description: As application grows, state management could become complex and error-prone.
+   - Prevention: Implement proper state management patterns and consider using state management libraries.
+
+3. **UI/UX Consistency**
+   - Description: Inconsistent UI elements and patterns could confuse users.
+   - Prevention: Develop and adhere to a comprehensive design system.
+
+4. **Asset Optimization**
+   - Description: Unoptimized images and assets could lead to slow loading times.
+   - Prevention: Implement proper asset optimization and loading strategies.
+
+5. **Form Validation**
+   - Description: Inadequate form validation could lead to data errors.
+   - Prevention: Implement comprehensive client-side and server-side validation.
+
+## General Issues
+
+### Encountered Issues
+
+1. **Documentation Gaps**
+   - Description: Incomplete or outdated documentation.
+   - Impact: Difficult onboarding for new developers and maintenance challenges.
+   - Solution: Implemented comprehensive documentation covering setup, architecture, and API references.
+
+2. **Testing Coverage**
+   - Description: Insufficient test coverage led to undetected bugs.
+   - Impact: Bugs discovered in production.
+   - Solution: Increased test coverage with unit, integration, and end-to-end tests.
+
+3. **Deployment Process**
+   - Description: Manual deployment process was error-prone.
+   - Impact: Deployment failures and downtime.
+   - Solution: Implemented automated CI/CD pipeline for reliable deployments.
+
+4. **Environment Configuration**
+   - Description: Inconsistent environment configurations between development and production.
+   - Impact: "Works on my machine" syndrome and unexpected behavior in production.
+   - Solution: Implemented Docker containers for consistent environments across development and production.
+
+5. **Code Review Process**
+   - Description: Inadequate code review process led to quality issues.
+   - Impact: Technical debt accumulation and bugs making it to production.
+   - Solution: Established formal code review guidelines and required approvals before merging.
+
+6. **Version Control Workflow**
+   - Description: Inconsistent branching strategy and commit practices.
+   - Impact: Merge conflicts and difficulty tracking changes.
+   - Solution: Implemented GitFlow workflow with clear guidelines for branches and commits.
+
+7. **Performance Monitoring**
+   - Description: Lack of performance monitoring in production.
+   - Impact: Performance issues discovered too late.
+   - Solution: Implemented APM (Application Performance Monitoring) tools to track performance metrics.
+
+8. **Error Tracking**
+   - Description: No centralized error tracking in production.
+   - Impact: Difficult to identify and prioritize errors affecting users.
+   - Solution: Implemented error tracking service to capture and analyze production errors.
+
+9. **User Feedback Collection**
+   - Description: No systematic way to collect user feedback.
+   - Impact: Missed opportunities for improvement based on user needs.
+   - Solution: Implemented in-app feedback mechanisms and regular user surveys.
+
+10. **Knowledge Silos**
+    - Description: Critical knowledge was concentrated among few team members.
+    - Impact: Development bottlenecks and risk if key members leave.
+    - Solution: Implemented knowledge sharing sessions and improved documentation.
+
+### Potential Issues
+
+1. **Scalability**
+   - Description: Application may not scale well with increasing users and data.
+   - Prevention: Design for scalability from the start and implement load testing.
+
+2. **Security Auditing**
+   - Description: Lack of regular security audits could leave vulnerabilities undetected.
+   - Prevention: Implement regular security audits and vulnerability scanning.
+
+3. **Technical Debt**
+   - Description: Accumulation of technical debt could slow down future development.
+   - Prevention: Regularly allocate time for refactoring and addressing technical debt.
