@@ -8,10 +8,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get database URL from environment variables or use default
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/preventplus")
+# Changed from PostgreSQL to SQLite for easier local development
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./preventplus.db")
 
 # Create SQLAlchemy engine
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
 # Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
