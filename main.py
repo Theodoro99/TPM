@@ -12,6 +12,7 @@ from app.ui.views.dashboard_view_new import DashboardView
 from app.ui.views.recent_activity_view import RecentActivityView
 from app.ui.views.reports_view import ReportsView
 from app.ui.views.settings_view import SettingsView
+from app.ui.views.login_view import LoginView
 
 # Load environment variables
 load_dotenv()
@@ -94,109 +95,6 @@ def main(page: ft.Page):
                 font_family="Roboto"
             )
         page.update()
-
-    # Create modern login form elements
-    username_field = ft.TextField(
-        label="Username",
-        prefix_icon=ft.Icons.PERSON,
-        border_radius=8,
-        focused_border_color=ft.Colors.BLUE_600,
-        autofocus=True,
-        text_size=14,
-        height=50,
-        content_padding=ft.padding.only(left=12, right=12),
-        color=ft.Colors.BLACK,
-        label_style=ft.TextStyle(color=ft.Colors.BLACK),
-    )
-
-    password_field = ft.TextField(
-        label="Password",
-        prefix_icon=ft.Icons.LOCK,
-        password=True,
-        border_radius=8,
-        focused_border_color=ft.Colors.BLUE_600,
-        text_size=14,
-        height=50,
-        content_padding=ft.padding.only(left=12, right=12),
-        color=ft.Colors.BLACK,
-        label_style=ft.TextStyle(color=ft.Colors.BLACK),
-    )
-
-    error_text = ft.Text(
-        "",
-        color=ft.Colors.RED_500,
-        size=12,
-        visible=False,
-        weight=ft.FontWeight.W_500,
-    )
-
-    def validate_login(e):
-        # Simple validation for demo purposes
-        if username_field.value == "admin" and password_field.value == "admin":
-            # Initialize views
-            initialize_views(page)
-            # Navigate to dashboard
-            page.go("/dashboard")
-        else:
-            error_text.value = "Invalid username or password"
-            error_text.visible = True
-            page.update()
-
-    login_button = ft.ElevatedButton(
-        "Login",
-        icon=ft.Icons.LOGIN,
-        on_click=validate_login,
-        style=ft.ButtonStyle(
-            color=ft.Colors.WHITE,
-            bgcolor=ft.colors.ORANGE_600,
-            elevation=0,
-            padding=ft.padding.only(top=15, bottom=15, left=25, right=25),
-            shape=ft.RoundedRectangleBorder(radius=8),
-        ),
-        height=50,
-        width=320,
-    )
-
-    # Function to create a modern stat card
-    def create_stat_card(title, value, icon, color):
-        return ft.Container(
-            content=ft.Column(
-                [
-                    ft.Container(
-                        content=ft.Icon(icon, color=ft.Colors.WHITE, size=24),
-                        bgcolor=color,
-                        border_radius=12,
-                        padding=10,
-                    ),
-                    ft.Text(
-                        value,
-                        size=42,
-                        weight=ft.FontWeight.BOLD,
-                        color=ft.Colors.GREY_900,
-                    ),
-                    ft.Text(
-                        title,
-                        size=14,
-                        color=ft.Colors.GREY_700,
-                        weight=ft.FontWeight.W_500,
-                    ),
-                ],
-                spacing=8,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                alignment=ft.MainAxisAlignment.CENTER,
-            ),
-            width=220,
-            height=160,
-            bgcolor=ft.Colors.WHITE,
-            border_radius=12,
-            padding=20,
-            shadow=ft.BoxShadow(
-                spread_radius=0,
-                blur_radius=5,
-                color=ft.Colors.with_opacity(0.1, ft.Colors.BLACK),
-                offset=ft.Offset(0, 2),
-            ),
-        )
 
     # Function to initialize all views
     def initialize_views(page):
@@ -314,99 +212,23 @@ def main(page: ft.Page):
     def show_login(page):
         page.clean()
 
-        # Create a modern login form
-        login_card = ft.Container(
-            content=ft.Column(
-                [
-                    # Logo and app name
-                    ft.Container(
-                        content=ft.Row(
-                            [
-                                ft.Container(
-                                    content=ft.Icon(
-                                        ft.Icons.ENGINEERING_ROUNDED,
-                                        color=ft.Colors.BLUE_600,
-                                        size=32,
-                                    ),
-                                    margin=ft.margin.only(right=10),
-                                ),
-                                ft.Text(
-                                    "PreventPlus",
-                                    weight=ft.FontWeight.BOLD,
-                                    size=24,
-                                    color=ft.Colors.GREY_900,
-                                ),
-                            ],
-                            alignment=ft.MainAxisAlignment.CENTER,
-                        ),
-                        margin=ft.margin.only(bottom=30),
-                    ),
+        # Use the custom LoginView instead of hardcoded login form
+        login_view = LoginView(on_login=lambda user: handle_successful_login(page, user))
 
-                    # Login title
-                    ft.Container(
-                        content=ft.Text(
-                            "Log In to Your Account",
-                            size=20,
-                            weight=ft.FontWeight.BOLD,
-                            color=ft.Colors.GREY_900,
-                            text_align=ft.TextAlign.CENTER,
-                        ),
-                        margin=ft.margin.only(bottom=24),
-                    ),
-
-                    # Form fields
-                    ft.Container(
-                        content=ft.Column(
-                            [
-                                username_field,
-                                ft.Container(height=16),
-                                password_field,
-                                ft.Container(height=8),
-                                error_text,
-                                ft.Container(height=24),
-                                login_button,
-                            ],
-                            spacing=0,
-                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                        ),
-                    ),
-
-                    # Footer
-                    ft.Container(
-                        content=ft.Text(
-                            "© 2025 PreventPlus - Maintenance Management",
-                            size=12,
-                            color=ft.Colors.GREY_600,
-                            text_align=ft.TextAlign.CENTER,
-                        ),
-                        margin=ft.margin.only(top=40),
-                    ),
-                ],
-                alignment=ft.MainAxisAlignment.CENTER,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            ),
-            width=420,
-            height=500,
-            padding=40,
-            bgcolor=ft.Colors.WHITE,
-            border_radius=16,
-            shadow=ft.BoxShadow(
-                spread_radius=0,
-                blur_radius=10,
-                color=ft.Colors.with_opacity(0.1, ft.Colors.BLACK),
-                offset=ft.Offset(0, 4),
-            ),
-        )
-
-        # Add login card to page
+        # Add login view to page
         page.add(
             ft.Container(
-                content=login_card,
+                content=login_view,
                 alignment=ft.alignment.center,
                 expand=True,
             )
         )
         page.update()
+
+    # Function to handle successful login
+    def handle_successful_login(page, user):
+        initialize_views(page)
+        page.go("/dashboard")
 
     # Function to handle route changes
     def route_change(e, page):
