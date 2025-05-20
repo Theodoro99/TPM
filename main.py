@@ -34,15 +34,15 @@ def main(page: ft.Page):
     # Use a light theme with orange accent color
     page.theme = ft.Theme(
         color_scheme=ft.ColorScheme(
-            primary=ft.colors.ORANGE_600,
-            primary_container=ft.colors.ORANGE_100,
-            secondary=ft.colors.DEEP_ORANGE_400,
-            background=ft.colors.ORANGE_50,
-            surface=ft.colors.WHITE,
-            on_primary=ft.colors.WHITE,
-            on_secondary=ft.colors.WHITE,
-            on_background=ft.colors.GREY_900,
-            on_surface=ft.colors.GREY_900,
+            primary=ft.Colors.ORANGE_600,
+            primary_container=ft.Colors.ORANGE_100,
+            secondary=ft.Colors.DEEP_ORANGE_400,
+            background=ft.Colors.ORANGE_50,
+            surface=ft.Colors.WHITE,
+            on_primary=ft.Colors.WHITE,
+            on_secondary=ft.Colors.WHITE,
+            on_background=ft.Colors.GREY_900,
+            on_surface=ft.Colors.GREY_900,
         ),
         font_family="Roboto"
     )
@@ -65,15 +65,15 @@ def main(page: ft.Page):
             page.theme_mode = ft.ThemeMode.DARK
             page.theme = ft.Theme(
                 color_scheme=ft.ColorScheme(
-                    primary=ft.colors.ORANGE_900,
-                    primary_container=ft.colors.ORANGE_800,
-                    secondary=ft.colors.DEEP_ORANGE_700,
-                    background=ft.colors.GREY_900,
-                    surface=ft.colors.GREY_800,
-                    on_primary=ft.colors.WHITE,
-                    on_secondary=ft.colors.WHITE,
-                    on_background=ft.colors.GREY_300,
-                    on_surface=ft.colors.GREY_300,
+                    primary=ft.Colors.ORANGE_900,
+                    primary_container=ft.Colors.ORANGE_800,
+                    secondary=ft.Colors.DEEP_ORANGE_700,
+                    background=ft.Colors.GREY_900,
+                    surface=ft.Colors.GREY_800,
+                    on_primary=ft.Colors.WHITE,
+                    on_secondary=ft.Colors.WHITE,
+                    on_background=ft.Colors.GREY_300,
+                    on_surface=ft.Colors.GREY_300,
                 ),
                 font_family="Roboto"
             )
@@ -82,15 +82,15 @@ def main(page: ft.Page):
             page.theme_mode = ft.ThemeMode.LIGHT
             page.theme = ft.Theme(
                 color_scheme=ft.ColorScheme(
-                    primary=ft.colors.ORANGE_600,
-                    primary_container=ft.colors.ORANGE_100,
-                    secondary=ft.colors.DEEP_ORANGE_400,
-                    background=ft.colors.ORANGE_50,
-                    surface=ft.colors.WHITE,
-                    on_primary=ft.colors.WHITE,
-                    on_secondary=ft.colors.WHITE,
-                    on_background=ft.colors.GREY_900,
-                    on_surface=ft.colors.GREY_900,
+                    primary=ft.Colors.ORANGE_600,
+                    primary_container=ft.Colors.ORANGE_100,
+                    secondary=ft.Colors.DEEP_ORANGE_400,
+                    background=ft.Colors.ORANGE_50,
+                    surface=ft.Colors.WHITE,
+                    on_primary=ft.Colors.WHITE,
+                    on_secondary=ft.Colors.WHITE,
+                    on_background=ft.Colors.GREY_900,
+                    on_surface=ft.Colors.GREY_900,
                 ),
                 font_family="Roboto"
             )
@@ -160,7 +160,7 @@ def main(page: ft.Page):
             leading_width=40,
             title=ft.Text("PreventPlus"),
             center_title=False,
-            bgcolor=ft.colors.ORANGE_600,
+            bgcolor=ft.Colors.ORANGE_600,
             color=ft.Colors.WHITE,
             actions=[
                 # Navigation buttons
@@ -247,7 +247,7 @@ def main(page: ft.Page):
             leading_width=40,
             title=ft.Text("PreventPlus"),
             center_title=False,
-            bgcolor=ft.colors.ORANGE_600,
+            bgcolor=ft.Colors.ORANGE_600,
             color=ft.Colors.WHITE,
             actions=[
                 # Navigation buttons
