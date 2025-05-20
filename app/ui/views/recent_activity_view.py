@@ -31,7 +31,7 @@ class RecentActivityView(ft.Column):
         super().__init__()
         self.entries = []
         self.filtered_entries = []
-        
+
         # Filters
         self.start_date_picker = None
         self.start_date_value = None
@@ -39,31 +39,31 @@ class RecentActivityView(ft.Column):
         self.end_date_value = None
         self.status_dropdown = None
         self.search_field = None
-        
+
         # Confirmation dialog
         self.delete_dialog = None
         self.entry_to_delete = None
-        
+
         # Date picker dialog
         self.date_dialog = None
         self.is_start_date_selection = True
         self.selected_date = None
-        
+
         # UI components
         self.entries_column = Column(scroll=ft.ScrollMode.AUTO, expand=True)
-        
+
         # Initialize filters with default values (last 30 days)
         self.init_date_range()
-        
+
         # Create date picker dialog
         self.create_date_dialog()
-        
+
         # Create filter components
         self.create_filter_components()
-        
+
         # Create confirmation dialog
         self.create_delete_dialog()
-        
+
         # Generate report button
         self.generate_report_button = ElevatedButton(
             "Generate Report",
@@ -75,7 +75,7 @@ class RecentActivityView(ft.Column):
                 shape=ft.RoundedRectangleBorder(radius=8),
             ),
         )
-        
+
         # Main layout
         main_container = Container(
             content=Column([
@@ -93,13 +93,14 @@ class RecentActivityView(ft.Column):
                                     shape=ft.RoundedRectangleBorder(radius=8),
                                 ),
                             ),
-                            Text("Recent Activity", size=24, weight=ft.FontWeight.BOLD, color=colors.BLACK, expand=True, text_align=ft.TextAlign.CENTER),
+                            Text("Recent Activity", size=24, weight=ft.FontWeight.BOLD, color=colors.BLACK, expand=True,
+                                 text_align=ft.TextAlign.CENTER),
                             self.generate_report_button,
                         ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
                     ]),
                     padding=padding.only(bottom=20),
                 ),
-                
+
                 # Filters section
                 Card(
                     content=Container(
@@ -153,7 +154,7 @@ class RecentActivityView(ft.Column):
                     elevation=2,
                     margin=margin.only(bottom=20),
                 ),
-                
+
                 # Entries list
                 Text("Recent Entries", weight=ft.FontWeight.BOLD, size=18, color=colors.BLACK),
                 self.entries_column,
@@ -161,28 +162,28 @@ class RecentActivityView(ft.Column):
             expand=True,
             padding=padding.all(20),
         )
-        
+
         # Add the main container to this column
         self.expand = True
         self.controls = [main_container]
-    
+
     def init_date_range(self):
         """Initialize default date range for filters (last 30 days)"""
         today = datetime.now()
         self.end_date_value = today
         self.start_date_value = today - timedelta(days=30)
-    
+
     def did_mount(self):
         # This method is called when the control is added to the page
         # Load initial data
         self.load_entries()
         self.update()
-        
+
     def build(self):
         # This method is no longer needed for ft.Column
         # It's kept for compatibility but doesn't do anything
         pass
-    
+
     def create_filter_components(self):
         """Create filter UI components"""
         # Start date picker
@@ -192,7 +193,7 @@ class RecentActivityView(ft.Column):
             suffix_icon=icons.CALENDAR_TODAY,
             on_click=lambda e: self.show_date_picker("start"),
         )
-        
+
         # End date picker
         self.end_date_picker = TextField(
             value=self.end_date_value.strftime("%Y-%m-%d") if self.end_date_value else "",
@@ -200,7 +201,7 @@ class RecentActivityView(ft.Column):
             suffix_icon=icons.CALENDAR_TODAY,
             on_click=lambda e: self.show_date_picker("end"),
         )
-        
+
         # Status dropdown
         self.status_dropdown = Dropdown(
             options=[
@@ -217,14 +218,14 @@ class RecentActivityView(ft.Column):
             focused_bgcolor=colors.BLUE_GREY_700,
             focused_color=colors.WHITE,
         )
-        
+
         # Search field
         self.search_field = TextField(
             hint_text="Search by description, location, or responsible person",
             prefix_icon=icons.SEARCH,
             expand=True,
         )
-    
+
     def create_delete_dialog(self):
         """Create confirmation dialog for delete operations"""
         self.delete_dialog = ft.AlertDialog(
@@ -237,34 +238,34 @@ class RecentActivityView(ft.Column):
             ],
             actions_alignment=ft.MainAxisAlignment.END,
         )
-    
+
     def create_date_dialog(self):
         """Create a custom date picker dialog"""
         # Create month and year dropdowns
         current_year = datetime.now().year
         month_dropdown = ft.Dropdown(
             options=[
-                ft.dropdown.Option(str(i), f"{calendar.month_name[i]}") 
+                ft.dropdown.Option(str(i), f"{calendar.month_name[i]}")
                 for i in range(1, 13)
             ],
             value=str(datetime.now().month),
             width=150,
             on_change=self.update_calendar,
         )
-        
+
         year_dropdown = ft.Dropdown(
             options=[
-                ft.dropdown.Option(str(year)) 
+                ft.dropdown.Option(str(year))
                 for year in range(current_year - 5, current_year + 6)
             ],
             value=str(current_year),
             width=100,
             on_change=self.update_calendar,
         )
-        
+
         # Create calendar grid
         calendar_grid = ft.Column(spacing=5)
-        
+
         # Create date dialog
         self.date_dialog = ft.AlertDialog(
             modal=True,
@@ -296,44 +297,45 @@ class RecentActivityView(ft.Column):
             ],
             actions_alignment=ft.MainAxisAlignment.END,
         )
-        
+
     def show_date_picker(self, date_type):
         """Show date picker for start or end date"""
         if self.page:
             # Set the flag to track which date field we're updating
             self.is_start_date_selection = (date_type == "start")
-            
+
             # Update the dialog title based on which date we're selecting
-            self.date_dialog.title = ft.Text("Select End Date" if not self.is_start_date_selection else "Select Start Date")
-            
+            self.date_dialog.title = ft.Text(
+                "Select End Date" if not self.is_start_date_selection else "Select Start Date")
+
             # Add date dialog to page overlay if not already added
             if self.date_dialog not in self.page.overlay:
                 self.page.overlay.append(self.date_dialog)
-            
+
             # Update the calendar grid before showing the dialog
             self.update_calendar_grid()
-            
+
             # Show the date dialog
             self.date_dialog.open = True
             self.page.update()
-            
+
     def update_calendar(self, e):
         """Update calendar when month or year changes"""
         self.update_calendar_grid()
         self.page.update()
-        
+
     def update_calendar_grid(self):
         """Update the calendar grid with days for the selected month and year"""
         # Get the dialog content column
         content_column = self.date_dialog.content
-        
+
         # Get the row containing month and year dropdowns (index 4)
         month_year_row = content_column.controls[4]
-        
+
         # Get the month and year dropdowns
         month_dropdown = month_year_row.controls[0]
         year_dropdown = month_year_row.controls[1]
-        
+
         try:
             month = int(month_dropdown.value)
             year = int(year_dropdown.value)
@@ -344,11 +346,11 @@ class RecentActivityView(ft.Column):
             year = today.year
             month_dropdown.value = str(month)
             year_dropdown.value = str(year)
-        
+
         # Get the calendar grid column (index 6)
         calendar_grid = content_column.controls[6]
         calendar_grid.controls.clear()
-        
+
         # Add day headers
         day_headers = ft.Row([
             ft.Container(
@@ -359,10 +361,10 @@ class RecentActivityView(ft.Column):
             ) for day in ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
         ])
         calendar_grid.controls.append(day_headers)
-        
+
         # Get the calendar for the selected month
         cal = calendar.monthcalendar(year, month)
-        
+
         # Add days to the grid
         for week in cal:
             week_row = ft.Row()
@@ -386,7 +388,7 @@ class RecentActivityView(ft.Column):
                     )
                     week_row.controls.append(date_btn)
             calendar_grid.controls.append(week_row)
-            
+
     def day_clicked(self, e):
         """Handle day button click in calendar"""
         day = e.control.data["day"]
@@ -394,12 +396,12 @@ class RecentActivityView(ft.Column):
         year = e.control.data["year"]
         selected_date = datetime(year, month, day).date()
         self.set_date(selected_date)
-        
+
     def set_date(self, date):
         """Set the selected date and update the appropriate text field"""
         self.selected_date = date
         formatted_date = date.strftime("%Y-%m-%d")
-        
+
         if not self.is_start_date_selection:
             # Update end date field
             self.end_date_value = date
@@ -410,25 +412,25 @@ class RecentActivityView(ft.Column):
             self.start_date_value = date
             self.start_date_picker.value = formatted_date
             print(f"Start date set to: {formatted_date}")
-        
+
         # Close the dialog
         self.close_date_dialog(None)
-        
+
         # Update the page
         self.update()
-        
+
     def close_date_dialog(self, e):
         """Close the date dialog"""
         self.date_dialog.open = False
         self.page.update()
-    
+
     def load_entries(self):
         """Load entries from database based on current filters"""
         with SessionLocal() as session:
             # Get all entries ordered by creation date (newest first)
             # No need to filter by is_deleted since we're now using hard delete
             query = session.query(LogbookEntry).order_by(desc(LogbookEntry.created_at))
-            
+
             # Apply date filters if set
             if self.start_date_value:
                 query = query.filter(LogbookEntry.created_at >= self.start_date_value)
@@ -436,11 +438,19 @@ class RecentActivityView(ft.Column):
                 # Add one day to include entries from the end date
                 end_date = self.end_date_value + timedelta(days=1)
                 query = query.filter(LogbookEntry.created_at < end_date)
-            
+
             # Apply status filter if not "All"
             if self.status_dropdown and self.status_dropdown.value != "All":
-                query = query.filter(LogbookEntry.status == self.status_dropdown.value)
-            
+                # Map dropdown values to StatusEnum values
+                status_map = {
+                    "Open": "open",
+                    "Ongoing": "ongoing",
+                    "Completed": "completed",
+                    "Escalated": "escalation"  # Note: dropdown has "Escalated" but enum has "escalation"
+                }
+                if self.status_dropdown.value in status_map:
+                    query = query.filter(LogbookEntry.status == status_map[self.status_dropdown.value])
+
             # Apply search filter if provided
             if self.search_field and self.search_field.value:
                 search_term = f"%{self.search_field.value}%"
@@ -452,7 +462,7 @@ class RecentActivityView(ft.Column):
                         LogbookEntry.device.ilike(search_term)
                     )
                 )
-            
+
             try:
                 self.entries = query.all()
                 self.filtered_entries = self.entries.copy()
@@ -461,14 +471,14 @@ class RecentActivityView(ft.Column):
                 print(f"Error loading entries: {ex}")
                 self.entries = []
                 self.filtered_entries = []
-        
+
             # Update UI
             self.update_entries_list()
-    
+
     def update_entries_list(self):
         """Update the entries list in the UI"""
         self.entries_column.controls.clear()
-        
+
         if not self.filtered_entries:
             self.entries_column.controls.append(
                 Container(
@@ -480,10 +490,10 @@ class RecentActivityView(ft.Column):
         else:
             for entry in self.filtered_entries:
                 self.entries_column.controls.append(self.create_entry_card(entry))
-        
+
         # Force a page update to refresh the UI
         self.page.update()
-    
+
     def create_entry_card(self, entry):
         """Create a card for a single entry with comprehensive details"""
         # Determine status color
@@ -496,7 +506,7 @@ class RecentActivityView(ft.Column):
             status_color = colors.GREEN
         elif entry.status == "Escalated":
             status_color = colors.RED
-        
+
         # Determine priority color if available
         priority_color = colors.GREY
         priority_text = "Medium"
@@ -510,13 +520,13 @@ class RecentActivityView(ft.Column):
             elif entry.priority == "low":
                 priority_color = colors.GREEN
                 priority_text = "Low"
-        
+
         # Format dates for better readability
         start_date = format_date(entry.start_date) if entry.start_date else "Not specified"
         end_date = format_date(entry.end_date) if entry.end_date else "Not specified"
         created_date = format_date(entry.created_at) if entry.created_at else "Unknown"
         updated_date = format_date(entry.updated_at) if entry.updated_at else "Not updated"
-        
+
         # Format resolution time if available
         resolution_time = "Not specified"
         if entry.resolution_time:
@@ -524,19 +534,19 @@ class RecentActivityView(ft.Column):
                 resolution_time = entry.resolution_time.strftime("%H:%M")
             else:
                 resolution_time = str(entry.resolution_time)
-        
+
         # Create a preview of the call description (first 100 chars)
         description_preview = entry.call_description
         if len(description_preview) > 100:
             description_preview = description_preview[:97] + "..."
-            
+
         # Create a preview of the solution description if available
         solution_preview = "No solution provided"
         if entry.solution_description and entry.solution_description.strip():
             solution_preview = entry.solution_description
             if len(solution_preview) > 100:
                 solution_preview = solution_preview[:97] + "..."
-        
+
         return Card(
             content=Container(
                 content=Column([
@@ -575,7 +585,7 @@ class RecentActivityView(ft.Column):
                             margin=margin.only(left=5),
                         ) if hasattr(entry, 'priority') and entry.priority else Container(),
                     ], alignment=ft.MainAxisAlignment.END),
-                    
+
                     # Title - Call Description
                     Container(
                         content=Text(
@@ -586,7 +596,7 @@ class RecentActivityView(ft.Column):
                         ),
                         margin=margin.only(top=5, bottom=10),
                     ),
-                    
+
                     # Main information grid
                     Container(
                         content=Column([
@@ -595,7 +605,8 @@ class RecentActivityView(ft.Column):
                                 Container(
                                     content=Row([
                                         Icon(icons.LOCATION_ON, color=colors.ORANGE_300, size=16),
-                                        Text(entry.location.name if entry.location else "Unknown Location", size=14, color=colors.WHITE),
+                                        Text(entry.location.name if entry.location else "Unknown Location", size=14,
+                                             color=colors.WHITE),
                                     ]),
                                     expand=True,
                                 ),
@@ -607,13 +618,14 @@ class RecentActivityView(ft.Column):
                                     expand=True,
                                 ),
                             ]),
-                            
+
                             # Row 2: Task and Responsible Person
                             Row([
                                 Container(
                                     content=Row([
                                         Icon(icons.TASK_ALT, color=colors.ORANGE_300, size=16),
-                                        Text(entry.task if entry.task else "Not specified", size=14, color=colors.WHITE),
+                                        Text(entry.task if entry.task else "Not specified", size=14,
+                                             color=colors.WHITE),
                                     ]),
                                     expand=True,
                                 ),
@@ -625,7 +637,7 @@ class RecentActivityView(ft.Column):
                                     expand=True,
                                 ),
                             ]),
-                            
+
                             # Row 3: Start and End Dates
                             Row([
                                 Container(
@@ -643,7 +655,7 @@ class RecentActivityView(ft.Column):
                                     expand=True,
                                 ),
                             ]),
-                            
+
                             # Row 4: Resolution Time and Category
                             Row([
                                 Container(
@@ -657,7 +669,8 @@ class RecentActivityView(ft.Column):
                                     content=Row([
                                         Icon(icons.CATEGORY, color=colors.ORANGE_300, size=16),
                                         Text(
-                                            entry.category.name if hasattr(entry, 'category') and entry.category else "Not categorized", 
+                                            entry.category.name if hasattr(entry,
+                                                                           'category') and entry.category else "Not categorized",
                                             size=14,
                                             color=colors.WHITE
                                         ),
@@ -665,7 +678,7 @@ class RecentActivityView(ft.Column):
                                     expand=True,
                                 ),
                             ]),
-                            
+
                             # Row 5: Created and Updated dates
                             Row([
                                 Container(
@@ -686,7 +699,7 @@ class RecentActivityView(ft.Column):
                         ]),
                         margin=margin.only(bottom=10),
                     ),
-                    
+
                     # Solution preview if available
                     Container(
                         content=Column([
@@ -733,11 +746,11 @@ class RecentActivityView(ft.Column):
             elevation=3,
             margin=margin.only(bottom=15),
         )
-    
+
     def apply_filters(self, e=None):
         """Apply current filters and reload entries"""
         self.load_entries()
-    
+
     def reset_filters(self, e=None):
         """Reset filters to default values"""
         self.init_date_range()
@@ -747,21 +760,21 @@ class RecentActivityView(ft.Column):
         self.search_field.value = ""
         self.update()
         self.load_entries()
-    
+
     def view_entry_details(self, entry_id, e=None):
         """View details of a specific entry"""
         print(f"Viewing entry {entry_id}")
-        
+
         # Convert entry_id to string for consistent comparison
         entry_id_str = str(entry_id).lower().strip()
-        
+
         # Find the entry in our filtered entries list
         entry = None
         for e in self.filtered_entries:
             if str(e.id).lower().strip() == entry_id_str:
                 entry = e
                 break
-        
+
         # If not found in memory, try to fetch from database
         if not entry:
             try:
@@ -773,7 +786,7 @@ class RecentActivityView(ft.Column):
                             entry = db_entry
                     except Exception as ex:
                         print(f"Error querying by ID directly: {ex}")
-                        
+
                     # If still not found, try string comparison
                     if not entry:
                         all_entries = session.query(LogbookEntry).all()
@@ -783,7 +796,7 @@ class RecentActivityView(ft.Column):
                                 break
             except Exception as ex:
                 print(f"Database error while finding entry: {ex}")
-        
+
         if not entry:
             print(f"Entry with ID {entry_id} not found in filtered entries or database")
             # Show error message to user
@@ -791,9 +804,9 @@ class RecentActivityView(ft.Column):
             self.page.snack_bar.open = True
             self.page.update()
             return
-        
+
         print(f"Found entry: {entry.id}, creating details dialog")
-        
+
         # Create a details dialog
         details_dialog = ft.AlertDialog(
             modal=True,
@@ -807,11 +820,13 @@ class RecentActivityView(ft.Column):
                     Container(height=10),
                     Row([Text("Status:", weight=ft.FontWeight.BOLD), Text(entry.status)]),
                     Container(height=10),
-                    Row([Text("Location:", weight=ft.FontWeight.BOLD), Text(entry.location.name if entry.location else "Unknown")]),
+                    Row([Text("Location:", weight=ft.FontWeight.BOLD),
+                         Text(entry.location.name if entry.location else "Unknown")]),
                     Container(height=10),
                     Row([Text("Device:", weight=ft.FontWeight.BOLD), Text(entry.device)]),
                     Container(height=10),
-                    Row([Text("Task:", weight=ft.FontWeight.BOLD), Text(entry.task if entry.task else "Not specified")]),
+                    Row([Text("Task:", weight=ft.FontWeight.BOLD),
+                         Text(entry.task if entry.task else "Not specified")]),
                     Container(height=10),
                     Row([Text("Responsible Person:", weight=ft.FontWeight.BOLD), Text(entry.responsible_person)]),
                     Container(height=10),
@@ -830,7 +845,7 @@ class RecentActivityView(ft.Column):
             ],
             actions_alignment=ft.MainAxisAlignment.END,
         )
-        
+
         # Show the dialog
         print("Setting up dialog to display entry details")
         self.page.dialog = details_dialog
@@ -838,7 +853,7 @@ class RecentActivityView(ft.Column):
         print("Dialog should be visible now")
         self.page.update()
         print("Page updated with dialog")
-    
+
     def close_details_dialog(self, e=None):
         """Close the details dialog"""
         print("Closing details dialog")
@@ -846,7 +861,7 @@ class RecentActivityView(ft.Column):
             self.page.dialog.open = False
             self.page.update()
             print("Dialog closed")
-            
+
     def close_delete_dialog(self, e=None):
         """Close the delete confirmation dialog"""
         print("Closing delete dialog")
@@ -854,19 +869,19 @@ class RecentActivityView(ft.Column):
             self.delete_dialog.open = False
             self.page.update()
             print("Delete dialog closed")
-        
+
     def delete_entry_by_id(self, entry_id, e=None):
         """Show confirmation dialog before deleting an entry by ID"""
         # Disable the button that triggered this method to prevent multiple clicks
         if e and hasattr(e, 'control') and e.control:
             e.control.disabled = True
             self.page.update()
-        
+
         print(f"Preparing to delete entry with ID: {entry_id}")
-        
+
         # Convert entry_id to string for consistent comparison
         entry_id_str = str(entry_id).lower().strip()
-        
+
         # Directly delete from database without confirmation dialog
         try:
             # Create a new session for this transaction
@@ -874,7 +889,7 @@ class RecentActivityView(ft.Column):
             try:
                 # Try direct query with the UUID object
                 entry = session.query(LogbookEntry).get(entry_id)
-                
+
                 if not entry:
                     # Try to find by string comparison
                     all_entries = session.query(LogbookEntry).all()
@@ -882,21 +897,22 @@ class RecentActivityView(ft.Column):
                         if str(e.id).lower().strip() == entry_id_str:
                             entry = e
                             break
-                
+
                 if entry:
                     print(f"Found entry to delete: {entry.id}")
                     # HARD DELETE - completely remove the record from the database
                     session.delete(entry)
                     session.commit()
                     print("Entry deleted successfully from database")
-                    
+
                     # Remove from UI lists
                     self.entries = [e for e in self.entries if str(e.id).lower().strip() != entry_id_str]
-                    self.filtered_entries = [e for e in self.filtered_entries if str(e.id).lower().strip() != entry_id_str]
-                    
+                    self.filtered_entries = [e for e in self.filtered_entries if
+                                             str(e.id).lower().strip() != entry_id_str]
+
                     # Update UI
                     self.update_entries_list()
-                    
+
                     # Show success message
                     self.page.snack_bar = ft.SnackBar(
                         content=Text("Entry deleted successfully"),
@@ -933,15 +949,15 @@ class RecentActivityView(ft.Column):
             )
             self.page.snack_bar.open = True
             self.page.update()
-        
+
     # close_delete_dialog method is defined below - no need to duplicate it
-    
+
     def confirm_delete(self, e=None):
         """Hard delete the entry after confirmation (completely remove from database)"""
         print(f"Confirming deletion of entry: {self.entry_to_delete.id if self.entry_to_delete else 'None'}")
         success = False
         entry_id_to_remove = None
-        
+
         if self.entry_to_delete:
             entry_id_to_remove = self.entry_to_delete.id
             try:
@@ -951,10 +967,10 @@ class RecentActivityView(ft.Column):
                     # Convert UUID to string for consistent comparison
                     entry_id_str = str(entry_id_to_remove).lower().strip()
                     print(f"Looking for entry with ID string: {entry_id_str}")
-                    
+
                     # Try direct query first with the UUID object
                     entry = session.query(LogbookEntry).get(entry_id_to_remove)
-                    
+
                     # If not found, try to find by string comparison
                     if not entry:
                         print("Entry not found by direct get, trying string comparison...")
@@ -964,7 +980,7 @@ class RecentActivityView(ft.Column):
                                 entry = e
                                 print(f"Found entry by string comparison: {e.id}")
                                 break
-                    
+
                     if entry:
                         print(f"Found entry to delete: {entry.id}")
                         # HARD DELETE - completely remove the record from the database
@@ -986,27 +1002,27 @@ class RecentActivityView(ft.Column):
 
         # Close dialog first
         self.close_delete_dialog()
-        
+
         if success:
             # Remove the deleted entry from our local lists to update UI immediately
             if entry_id_to_remove:
                 entry_id_str = str(entry_id_to_remove).lower().strip()
                 self.entries = [e for e in self.entries if str(e.id).lower().strip() != entry_id_str]
                 self.filtered_entries = [e for e in self.filtered_entries if str(e.id).lower().strip() != entry_id_str]
-            
+
             # Update the entries list in the UI
             self.update_entries_list()
-            
+
             # Show success message
             self.page.snack_bar = ft.SnackBar(
                 content=Text("Entry deleted successfully"),
                 action="OK",
             )
             self.page.snack_bar.open = True
-            
+
             # Force UI update
             self.page.update()
-            
+
             # Reload entries from database to ensure consistency
             self.load_entries()
         else:
@@ -1017,23 +1033,23 @@ class RecentActivityView(ft.Column):
             )
             self.page.snack_bar.open = True
             self.page.update()
-    
+
     def return_to_home(self, e=None):
         """Navigate back to the home/dashboard page"""
         if hasattr(self.page, "go"):
             self.page.go("/")
         else:
             print("Navigation not available")
-    
+
     def edit_entry_by_id(self, entry_id):
         """Edit an existing entry by ID"""
         # Import here to avoid circular imports
         from app.ui.views.new_entry_view import NewEntryView
-        
+
         # Find the entry in the database
         with SessionLocal() as session:
             entry = session.query(LogbookEntry).filter(LogbookEntry.id == entry_id).first()
-            
+
             if not entry:
                 # Show error message if entry not found
                 self.page.snack_bar = ft.SnackBar(
@@ -1043,21 +1059,21 @@ class RecentActivityView(ft.Column):
                 self.page.snack_bar.open = True
                 self.page.update()
                 return
-            
+
             # Create a handler for saving the edited entry
             def handle_save(entry_data):
                 try:
                     # Update the entry in the database
                     with SessionLocal() as update_session:
                         db_entry = update_session.query(LogbookEntry).filter(LogbookEntry.id == entry_id).first()
-                        
+
                         if not db_entry:
                             raise ValueError(f"Entry with ID {entry_id} not found")
-                        
+
                         # Find location ID based on device name
                         from app.db.models import Location
                         location = update_session.query(Location).filter(Location.name == entry_data["device"]).first()
-                        
+
                         if not location:
                             # Create a new location if it doesn't exist
                             location = Location(
@@ -1068,63 +1084,63 @@ class RecentActivityView(ft.Column):
                             )
                             update_session.add(location)
                             update_session.flush()  # This will assign an ID to the location
-                        
+
                         # Update entry fields
                         db_entry.responsible_person = entry_data["responsible_person"]
                         db_entry.task = entry_data["task"]
                         db_entry.location_id = location.id
                         db_entry.device = entry_data["device"]
-                        
+
                         # Update dates if provided
                         if entry_data["start_date"]:
                             db_entry.start_date = datetime.strptime(entry_data["start_date"], "%Y-%m-%d").date()
-                        
+
                         if entry_data["end_date"]:
                             db_entry.end_date = datetime.strptime(entry_data["end_date"], "%Y-%m-%d").date()
-                        
+
                         db_entry.call_description = entry_data["call_description"]
                         db_entry.solution_description = entry_data["solution_description"]
-                        
+
                         # Handle resolution time if provided
                         if entry_data["resolution_time"]:
                             # Parse the time in HH:MM format and combine with created_at date
                             time_parts = entry_data["resolution_time"].split(':')
                             hour = int(time_parts[0])
                             minute = int(time_parts[1])
-                            
+
                             # Create a datetime object with the resolution time
                             resolution_date = db_entry.created_at.date()
                             resolution_time = datetime.combine(resolution_date, time(hour, minute))
-                            
+
                             # If resolution time is earlier than created_at, add a day
                             if resolution_time < db_entry.created_at:
                                 resolution_time = resolution_time + timedelta(days=1)
-                            
+
                             db_entry.resolution_time = resolution_time
-                        
+
                         # Update status if provided
                         if entry_data["status"]:
                             db_entry.status = entry_data["status"]
-                        
+
                         # Update the updated_at timestamp
                         db_entry.updated_at = datetime.now()
-                        
+
                         # Commit the changes
                         update_session.commit()
-                    
+
                     # Show success message
                     self.page.snack_bar = ft.SnackBar(
                         content=Text("Entry updated successfully"),
                         action="OK",
                     )
                     self.page.snack_bar.open = True
-                    
+
                     # Return to the recent activity view and refresh the entries
                     self.page.clean()
                     self.page.add(self)
                     self.load_entries()  # Reload entries to show the updated one
                     self.page.update()
-                    
+
                 except Exception as ex:
                     # Show error message if update fails
                     self.page.snack_bar = ft.SnackBar(
@@ -1133,28 +1149,28 @@ class RecentActivityView(ft.Column):
                     )
                     self.page.snack_bar.open = True
                     self.page.update()
-            
+
             # Create a handler for canceling the edit
             def handle_cancel():
                 # Return to the recent activity view without making changes
                 self.page.clean()
                 self.page.add(self)
                 self.page.update()
-            
+
             # Create the edit entry view using the NewEntryView with pre-filled data
             edit_view = NewEntryView(on_save=handle_save, on_cancel=handle_cancel)
             edit_view.page = self.page
-            
+
             # Pre-fill the form with existing entry data
             # Responsible person
             edit_view.responsible_person_field.value = entry.responsible_person
-            
+
             # Task checkboxes
             if entry.task:
                 tasks = [task.strip() for task in entry.task.split(',')]
                 for task, checkbox in edit_view.task_checkboxes.items():
                     checkbox.value = task in tasks
-            
+
             # Location/device
             if entry.device:
                 edit_view.location_dropdown.value = entry.device
@@ -1162,31 +1178,31 @@ class RecentActivityView(ft.Column):
                 for loc, checkbox in edit_view.location_checkboxes.items():
                     if loc == entry.device:
                         checkbox.value = True
-            
+
             # Dates
             if entry.start_date:
                 edit_view.start_date_field.value = entry.start_date.strftime("%Y-%m-%d")
-            
+
             if entry.end_date:
                 edit_view.end_date_field.value = entry.end_date.strftime("%Y-%m-%d")
-            
+
             # Description fields
             edit_view.call_description_field.value = entry.call_description or ""
             edit_view.solution_field.value = entry.solution_description or ""
-            
+
             # Resolution time
             if entry.resolution_time:
                 edit_view.resolution_time_field.value = entry.resolution_time.strftime("%H:%M")
-            
+
             # Status
             if entry.status:
                 edit_view.status_dropdown.value = entry.status
-            
+
             # Replace the current view with the edit view
             self.page.clean()
             self.page.add(edit_view)
             self.page.update()
-    
+
     def handle_generate_report(self, e=None):
         """Generate a report based on current filtered entries"""
         if not self.filtered_entries:
@@ -1198,17 +1214,17 @@ class RecentActivityView(ft.Column):
             self.page.snack_bar.open = True
             self.page.update()
             return
-            
+
         # Create a new report in the database
         with SessionLocal() as session:
             from app.db.models import Report
             import uuid
-            
+
             # Get current user ID (assuming it's available in the page data)
             user_id = None
             if hasattr(self.page, "data") and self.page.data is not None:
                 user_id = self.page.data.get("user_id")
-                
+
             # If user_id is still None, try to get a default user from the database
             if user_id is None:
                 # Find an admin user or any user to use as the creator
@@ -1216,13 +1232,13 @@ class RecentActivityView(ft.Column):
                 default_user = session.query(User).filter(User.role == RoleEnum.ADMIN).first()
                 if not default_user:
                     default_user = session.query(User).first()
-                
+
                 if default_user:
                     user_id = default_user.id
                 else:
                     # If no users exist in the database, create a system user ID
                     user_id = uuid.uuid4()
-            
+
             # Create report parameters from current filters
             parameters = {
                 "start_date": self.start_date_value.strftime("%Y-%m-%d") if self.start_date_value else None,
@@ -1231,7 +1247,7 @@ class RecentActivityView(ft.Column):
                 "search": self.search_field.value if self.search_field else None,
                 "entry_count": len(self.filtered_entries)
             }
-            
+
             # Create a new report record
             new_report = Report(
                 id=uuid.uuid4(),
@@ -1243,10 +1259,10 @@ class RecentActivityView(ft.Column):
                 status="generated",
                 created_by_id=user_id
             )
-            
+
             session.add(new_report)
             session.commit()
-            
+
             # Show success message
             self.page.snack_bar = ft.SnackBar(
                 content=Text(f"Report generated successfully with {len(self.filtered_entries)} entries"),
@@ -1254,7 +1270,7 @@ class RecentActivityView(ft.Column):
             )
             self.page.snack_bar.open = True
             self.page.update()
-            
+
             # Navigate to the Reports view
             if hasattr(self.page, "go"):
                 self.page.go("/reports")
