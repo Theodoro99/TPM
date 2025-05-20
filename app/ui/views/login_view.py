@@ -1,144 +1,211 @@
 import flet as ft
-from flet.control import Control
-from flet.alert_dialog import AlertDialog
-from flet.card import Card
-from flet.column import Column
-from flet.container import Container
-from flet.elevated_button import ElevatedButton
-from flet.image import Image
-from flet.outlined_button import OutlinedButton
-from flet.padding import Padding
-from flet.row import Row
-from flet.text import Text
-from flet.text_field import TextField
-from flet import colors, icons
+from flet import icons
 
 
-class LoginView(Control):
+class LoginView(ft.Container):
     def __init__(self, on_login=None):
         super().__init__()
         self.on_login = on_login
-        self.username_field = TextField(
+        self.expand = True
+
+        # Initialize UI components first
+        self._init_ui_components()
+
+        # Then build the login UI
+        self.content = self._build_login_ui()
+
+    def _init_ui_components(self):
+        # Text fields with improved styling for dark theme
+        self.username_field = ft.TextField(
             label="Username",
-            icon=icons.PERSON,
+            icon=icons.PERSON_OUTLINED,
             autofocus=True,
-            width=300,
+            width=320,  # Increased width to match larger card
+            border_color=ft.colors.ORANGE_400,
+            focused_border_color=ft.colors.ORANGE_500,
+            cursor_color=ft.colors.ORANGE_500,
+            text_style=ft.TextStyle(color=ft.colors.WHITE),
+            label_style=ft.TextStyle(color=ft.colors.ORANGE_200),
+            bgcolor="#3A3A3A",  # Slightly lighter than the card background
         )
-        self.password_field = TextField(
+
+        self.password_field = ft.TextField(
             label="Password",
-            icon=icons.LOCK,
+            icon=icons.LOCK_OUTLINE,
             password=True,
             can_reveal_password=True,
-            width=300,
+            width=320,  # Increased width to match larger card
+            border_color=ft.colors.ORANGE_400,
+            focused_border_color=ft.colors.ORANGE_500,
+            cursor_color=ft.colors.ORANGE_500,
+            text_style=ft.TextStyle(color=ft.colors.WHITE),
+            label_style=ft.TextStyle(color=ft.colors.ORANGE_200),
+            bgcolor="#3A3A3A",  # Slightly lighter than the card background
         )
-        self.error_text = Text(
-            color=colors.RED_500,
-            size=12,
+
+        self.error_text = ft.Text(
+            color=ft.colors.RED_400,  # Brighter red for better visibility on dark background
+            size=13,
             visible=False,
+            weight=ft.FontWeight.W_500,
         )
-        self.login_button = ElevatedButton(
-            text="Login",
-            icon=icons.LOGIN,
-            width=300,
+
+        # Login button with larger text
+        self.login_button = ft.TextButton(
+            content=ft.Text(
+                "Login",
+                color=ft.colors.ORANGE_300,
+                size=28,  # Increased text size even more
+                weight=ft.FontWeight.BOLD,  # Make text bold for better visibility
+            ),
+            width=200,
             on_click=self.login_clicked,
         )
-        self.forgot_password_button = OutlinedButton(
-            text="Forgot Password?",
-            width=300,
-        )
-    
-    def build(self):
-        return Container(
-            content=Column(
-                [
-                    Container(
-                        content=Image(
-                            src="/static/logo.png",
-                            width=150,
-                            height=150,
-                            fit=ft.ImageFit.CONTAIN,
-                        ),
-                        alignment=ft.alignment.center,
+
+        # Removed forgot password button as requested
+
+    def _build_login_ui(self):
+        # Create a modern, professional login page with black and orange theme
+        return ft.Row(
+            [
+                # Left side - decorative panel with gradient
+                ft.Container(
+                    width=400,
+                    gradient=ft.LinearGradient(
+                        begin=ft.alignment.top_center,
+                        end=ft.alignment.bottom_center,
+                        colors=[
+                            ft.colors.BLACK,
+                            "#1A1A1A",
+                            "#262626",
+                        ],
                     ),
-                    Text(
-                        "PreventPlus",
-                        size=32,
-                        weight=ft.FontWeight.BOLD,
-                        color=colors.BLUE_700,
-                    ),
-                    Text(
-                        "Technical Intervention Logbook",
-                        size=16,
-                        color=colors.BLUE_GREY_700,
-                    ),
-                    Container(height=30),
-                    Card(
-                        content=Container(
-                            content=Column(
-                                [
-                                    Container(
-                                        content=Text(
-                                            "Login to your account",
-                                            size=20,
-                                            weight=ft.FontWeight.BOLD,
-                                        ),
-                                        padding=Padding(20, 20, 20, 0),
-                                    ),
-                                    Container(
-                                        content=Column(
-                                            [
-                                                self.username_field,
-                                                Container(height=10),
-                                                self.password_field,
-                                                Container(height=5),
-                                                self.error_text,
-                                                Container(height=10),
-                                                self.login_button,
-                                                Container(height=10),
-                                                self.forgot_password_button,
-                                            ],
-                                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                                        ),
-                                        padding=20,
-                                    ),
-                                ],
-                                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    content=ft.Column(
+                        [
+                            ft.Container(height=80),
+                            ft.Container(
+                                content=ft.Image(
+                                    src="/static/logo.png",
+                                    width=180,
+                                    height=180,
+                                    fit=ft.ImageFit.CONTAIN,
+                                    color=ft.colors.ORANGE_500,
+                                ),
+                                alignment=ft.alignment.center,
                             ),
-                            width=350,
-                        ),
-                        elevation=5,
+                            ft.Container(height=20),
+                            ft.Text(
+                                "PreventPlus",
+                                size=38,
+                                weight=ft.FontWeight.BOLD,
+                                color=ft.colors.WHITE,
+                                text_align=ft.TextAlign.CENTER,
+                            ),
+                            ft.Container(height=5),
+                            ft.Text(
+                                "Maintenance Management",
+                                size=18,
+                                color=ft.colors.ORANGE_300,
+                                text_align=ft.TextAlign.CENTER,
+                            ),
+                            ft.Container(height=40),
+                            ft.Container(
+                                content=ft.Text(
+                                    "© 2025 PreventPlus - Maintenance Management",
+                                    size=12,
+                                    color=ft.colors.WHITE70,
+                                    text_align=ft.TextAlign.CENTER,
+                                ),
+                                alignment=ft.alignment.center,
+                                margin=ft.margin.only(bottom=30),
+                            ),
+                        ],
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                        expand=True,
                     ),
-                ],
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                spacing=10,
-            ),
-            alignment=ft.alignment.center,
+                ),
+
+                # Right side - login form with white background
+                ft.Container(
+                    expand=True,
+                    content=ft.Column(
+                        [
+                            ft.Container(height=80),  # Top spacing
+
+                            # Login form card
+                            ft.Card(
+                                content=ft.Container(
+                                    content=ft.Column(
+                                        [
+                                            ft.Container(
+                                                content=ft.Text(
+                                                    "Log In to Your Account",
+                                                    size=24,
+                                                    weight=ft.FontWeight.W_600,
+                                                    color=ft.colors.WHITE,
+                                                ),
+                                                padding=ft.padding.only(top=25, bottom=10),
+                                            ),
+                                            ft.Container(
+                                                content=ft.Text(
+                                                    "Enter your credentials to access your dashboard",
+                                                    size=14,
+                                                    color=ft.colors.ORANGE_200,
+                                                ),
+                                                padding=ft.padding.only(bottom=25),
+                                            ),
+                                            self.username_field,
+                                            ft.Container(height=15),
+                                            self.password_field,
+                                            ft.Container(height=8),
+                                            self.error_text,
+                                            ft.Container(height=20),
+                                            self.login_button,
+                                        ],
+                                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                        width=400,  # Increased from 350 to 400
+                                    ),
+                                    padding=ft.padding.symmetric(horizontal=40, vertical=30),  # Increased padding
+                                    border_radius=15,  # Slightly larger border radius
+                                    bgcolor="#2A2A2A",  # Dark gray background for better contrast
+                                ),
+                                elevation=4,
+                                color=ft.colors.BLACK,
+                                surface_tint_color=ft.colors.BLACK,
+                            ),
+                        ],
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        alignment=ft.MainAxisAlignment.START,
+                    ),
+                    bgcolor="#FFF3E0",  # Light orange background for the right side
+                ),
+            ],
             expand=True,
-            bgcolor=colors.BLUE_50,
         )
-    
+
     def login_clicked(self, e):
         """Handle login button click."""
         username = self.username_field.value
         password = self.password_field.value
-        
+
         if not username or not password:
             self.error_text.value = "Please enter both username and password"
             self.error_text.visible = True
             self.update()
             return
-        
+
         # Use the actual authentication system
         from sqlalchemy.orm import Session
         from app.db.database import SessionLocal
         from app.core.security import authenticate_user
-        
+
         # Create a database session
         db = SessionLocal()
         try:
             # Authenticate the user
             user_obj = authenticate_user(db, username, password)
-            
+
             if user_obj:
                 # Convert user object to dictionary for the callback
                 user = {
@@ -155,3 +222,4 @@ class LoginView(Control):
                 self.update()
         finally:
             db.close()
+
