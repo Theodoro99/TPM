@@ -2795,7 +2795,7 @@ class ReportsView(ft.Container):
         self.summary_stats.completion_rate = f"{int(completion_rate)}%"
         self.summary_stats.escalation_rate = f"{int(escalation_rate)}%"
         
-        # Rebuild the summary stats content
+        ##Rebuild the summary stats content
         self.summary_stats.controls = [self.summary_stats.build_content()]
         
         # Update the UI
