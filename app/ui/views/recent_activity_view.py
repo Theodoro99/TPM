@@ -213,10 +213,12 @@ class RecentActivityView(ft.Column):
             ],
             value="All",
             width=200,
-            bgcolor=colors.BLUE_GREY_800,
-            color=colors.WHITE,
-            focused_bgcolor=colors.BLUE_GREY_700,
-            focused_color=colors.WHITE,
+            bgcolor=colors.WHITE,
+            color=colors.BLACK,
+            focused_bgcolor=colors.WHITE,
+            focused_color=colors.BLACK,
+            # Use a border to make it more visible against white background
+            border=ft.border.all(1, colors.BLACK45),
         )
 
         # Search field
@@ -1274,3 +1276,6 @@ class RecentActivityView(ft.Column):
             # Navigate to the Reports view
             if hasattr(self.page, "go"):
                 self.page.go("/reports")
+
+
+
