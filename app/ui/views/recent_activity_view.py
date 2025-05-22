@@ -186,28 +186,20 @@ class RecentActivityView(ft.Column):
 
     def create_filter_components(self):
         """Create filter UI components"""
-        # Start date picker with improved styling
+        # Start date picker
         self.start_date_picker = TextField(
             value=self.start_date_value.strftime("%Y-%m-%d") if self.start_date_value else "",
             read_only=True,
             suffix_icon=icons.CALENDAR_TODAY,
             on_click=lambda e: self.show_date_picker("start"),
-            border_color=colors.GREY_400,
-            focused_border_color=colors.ORANGE,
-            bgcolor=colors.WHITE,
-            color=colors.BLACK,
         )
 
-        # End date picker with improved styling
+        # End date picker
         self.end_date_picker = TextField(
             value=self.end_date_value.strftime("%Y-%m-%d") if self.end_date_value else "",
             read_only=True,
             suffix_icon=icons.CALENDAR_TODAY,
             on_click=lambda e: self.show_date_picker("end"),
-            border_color=colors.GREY_400,
-            focused_border_color=colors.ORANGE,
-            bgcolor=colors.WHITE,
-            color=colors.BLACK,
         )
 
         # Status dropdown
@@ -223,10 +215,10 @@ class RecentActivityView(ft.Column):
             width=200,
             bgcolor=colors.WHITE,
             color=colors.BLACK,
-            focused_bgcolor=colors.GREY_100,
+            focused_bgcolor=colors.WHITE,
             focused_color=colors.BLACK,
-            border_color=colors.GREY_400,
-            border_width=1,
+            # Use a border to make it more visible against white background
+            border=ft.border.all(1, colors.BLACK45),
         )
 
         # Search field
@@ -251,7 +243,7 @@ class RecentActivityView(ft.Column):
 
     def create_date_dialog(self):
         """Create a custom date picker dialog"""
-        # Create month and year dropdowns with improved styling
+        # Create month and year dropdowns
         current_year = datetime.now().year
         month_dropdown = ft.Dropdown(
             options=[
@@ -261,12 +253,6 @@ class RecentActivityView(ft.Column):
             value=str(datetime.now().month),
             width=150,
             on_change=self.update_calendar,
-            bgcolor=colors.WHITE,
-            color=colors.BLACK,
-            focused_bgcolor=colors.GREY_100,
-            focused_color=colors.BLACK,
-            border_color=colors.GREY_400,
-            border_width=1,
         )
 
         year_dropdown = ft.Dropdown(
@@ -277,59 +263,41 @@ class RecentActivityView(ft.Column):
             value=str(current_year),
             width=100,
             on_change=self.update_calendar,
-            bgcolor=colors.WHITE,
-            color=colors.BLACK,
-            focused_bgcolor=colors.GREY_100,
-            focused_color=colors.BLACK,
-            border_color=colors.GREY_400,
-            border_width=1,
         )
 
         # Create calendar grid
         calendar_grid = ft.Column(spacing=5)
 
-        # Create date dialog with improved styling
+        # Create date dialog
         self.date_dialog = ft.AlertDialog(
             modal=True,
-            title=ft.Text("Select Date", weight=ft.FontWeight.BOLD, color=colors.ORANGE),
-            content=ft.Container(
-                content=ft.Column([
-                    ft.Text("Click on a date to select it:", color=colors.BLACK),
-                    ft.Container(height=10),  # Spacer
-                    ft.Row([
-                        ft.ElevatedButton(
-                            text="Today",
-                            on_click=lambda e: self.set_date(datetime.now().date()),
-                            style=ft.ButtonStyle(
-                                color=colors.WHITE,
-                                bgcolor=colors.ORANGE,
-                            ),
+            title=ft.Text("Select Date"),
+            content=ft.Column([
+                ft.Text("Click on a date to select it:"),
+                ft.Container(height=10),  # Spacer
+                ft.Row([
+                    ft.ElevatedButton(
+                        text="Today",
+                        on_click=lambda e: self.set_date(datetime.now().date()),
+                        style=ft.ButtonStyle(
+                            color=ft.colors.WHITE,
+                            bgcolor=ft.colors.BLUE_600,
                         ),
-                    ]),
-                    ft.Container(height=10),  # Spacer
-                    ft.Row([
-                        month_dropdown,
-                        year_dropdown,
-                    ]),
-                    ft.Container(height=10),  # Spacer
-                    calendar_grid,
-                    ft.Container(height=10),  # Spacer
-                ], tight=True),
-                bgcolor=colors.WHITE,
-                padding=padding.all(20),
-                border_radius=border_radius.all(10),
-            ),
-            actions=[
-                ft.TextButton(
-                    "Cancel",
-                    on_click=self.close_date_dialog,
-                    style=ft.ButtonStyle(
-                        color=colors.ORANGE,
                     ),
-                ),
+                ]),
+                ft.Container(height=10),  # Spacer
+                ft.Row([
+                    month_dropdown,
+                    year_dropdown,
+                ]),
+                ft.Container(height=10),  # Spacer
+                calendar_grid,
+                ft.Container(height=10),  # Spacer
+            ], tight=True),
+            actions=[
+                ft.TextButton("Cancel", on_click=self.close_date_dialog),
             ],
             actions_alignment=ft.MainAxisAlignment.END,
-            bgcolor=colors.WHITE,
         )
 
     def show_date_picker(self, date_type):
@@ -360,89 +328,68 @@ class RecentActivityView(ft.Column):
 
     def update_calendar_grid(self):
         """Update the calendar grid with days for the selected month and year"""
-        # Get the dialog content column (now inside a Container)
-        content_column = self.date_dialog.content.content
+        # Get the dialog content column
+        content_column = self.date_dialog.content
 
         # Get the row containing month and year dropdowns (index 4)
         month_year_row = content_column.controls[4]
+
+        # Get the month and year dropdowns
         month_dropdown = month_year_row.controls[0]
         year_dropdown = month_year_row.controls[1]
 
-        # Get the selected month and year
-        selected_month = int(month_dropdown.value)
-        selected_year = int(year_dropdown.value)
+        try:
+            month = int(month_dropdown.value)
+            year = int(year_dropdown.value)
+        except (ValueError, TypeError):
+            # Default to current month/year if there's an issue
+            today = datetime.now()
+            month = today.month
+            year = today.year
+            month_dropdown.value = str(month)
+            year_dropdown.value = str(year)
 
-        # Get the calendar column (index 6)
-        if len(content_column.controls) > 6:
-            calendar_column = content_column.controls[6]
-            calendar_column.controls.clear()
-        else:
-            calendar_column = ft.Column([])
-            content_column.controls.append(calendar_column)
+        # Get the calendar grid column (index 6)
+        calendar_grid = content_column.controls[6]
+        calendar_grid.controls.clear()
 
-        # Get the calendar for the selected month and year
-        cal = calendar.monthcalendar(selected_year, selected_month)
+        # Add day headers
+        day_headers = ft.Row([
+            ft.Container(
+                ft.Text(day, size=14, weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER),
+                width=40,
+                height=30,
+                alignment=ft.alignment.center
+            ) for day in ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        ])
+        calendar_grid.controls.append(day_headers)
 
-        # Add day headers with improved styling
-        day_headers = ft.Row(
-            [
-                ft.Container(
-                    content=ft.Text(
-                        day,
-                        weight=ft.FontWeight.BOLD,
-                        color=colors.ORANGE,
-                        size=16
-                    ),
-                    alignment=ft.alignment.center,
-                    width=40,
-                    height=40,
-                )
-                for day in ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
-        )
-        calendar_column.controls.append(day_headers)
+        # Get the calendar for the selected month
+        cal = calendar.monthcalendar(year, month)
 
-        # Add calendar days with improved styling
+        # Add days to the grid
         for week in cal:
-            week_row_controls = []
+            week_row = ft.Row()
             for day in week:
-                if day != 0:
-                    # Create a container for each valid day with better contrast
-                    day_container = ft.Container(
-                        content=ft.Text(
-                            str(day),
-                            color=colors.BLACK,
-                            weight=ft.FontWeight.BOLD,
-                            size=16
-                        ),
-                        alignment=ft.alignment.center,
-                        width=40,
-                        height=40,
-                        bgcolor=colors.WHITE,
-                        border_radius=ft.border_radius.all(20),
-                        data=f"{selected_year}-{selected_month:02d}-{day:02d}"
+                if day == 0:
+                    # Empty cell for days not in this month
+                    week_row.controls.append(
+                        ft.Container(width=40, height=40)
                     )
-                    # Add click handler
-                    day_container.on_click = lambda e, container=day_container: self.day_clicked(e)
                 else:
-                    # Empty container for padding with subtle background
-                    day_container = ft.Container(
-                        content=ft.Text(""),
-                        alignment=ft.alignment.center,
+                    # Create a date button
+                    date_btn = ft.ElevatedButton(
+                        text=str(day),
                         width=40,
                         height=40,
-                        bgcolor=colors.with_opacity(0.1, colors.GREY),
-                        border_radius=ft.border_radius.all(20),
+                        style=ft.ButtonStyle(
+                            shape=ft.RoundedRectangleBorder(radius=5),
+                        ),
+                        data={"day": day, "month": month, "year": year},
+                        on_click=self.day_clicked
                     )
-                week_row_controls.append(day_container)
-
-            # Create row with all days
-            week_row = ft.Row(
-                controls=week_row_controls,
-                alignment=ft.MainAxisAlignment.CENTER,
-            )
-            calendar_column.controls.append(week_row)
+                    week_row.controls.append(date_btn)
+            calendar_grid.controls.append(week_row)
 
     def day_clicked(self, e):
         """Handle day button click in calendar"""
@@ -1329,5 +1276,6 @@ class RecentActivityView(ft.Column):
             # Navigate to the Reports view
             if hasattr(self.page, "go"):
                 self.page.go("/reports")
+
 
 
