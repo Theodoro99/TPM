@@ -2354,7 +2354,7 @@ class SettingsView(ft.Container):
             expand=1,
         )
 
-        # Set up the container
+        ## Set up the container
         self.content = self.build_content()
         self.expand = True
 
