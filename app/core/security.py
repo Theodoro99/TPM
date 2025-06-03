@@ -87,7 +87,7 @@ def authenticate_user(db: Session, username: str, password: str):
         db.commit()
         return False
     
-    # Reset failed attempts and update last login
+    ##Reset failed attempts and update last login
     user.failed_attempts = 0
     user.last_login = datetime.utcnow()
     db.commit()
