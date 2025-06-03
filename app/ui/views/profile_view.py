@@ -17,9 +17,29 @@ from flet import (
     padding,
 )
 
+"""User Profile View Module.
+
+This module contains the ProfileView class which provides
+a comprehensive interface for viewing and managing user profiles.
+"""
+
 
 class ProfileView(UserControl):
+    """A user profile management interface.
+
+    Args:
+        on_logout: Callback function for logout action
+
+    Features:
+        - Profile overview with avatar
+        - Editable profile information
+        - Password change functionality
+        - User preferences management
+        - Logout capability
+    """
+
     def __init__(self, on_logout=None):
+        """Initialize the profile view with user data and UI components."""
         super().__init__()
         self.on_logout = on_logout
         
@@ -112,6 +132,12 @@ class ProfileView(UserControl):
         )
     
     def build(self):
+        """Construct the complete profile view layout.
+
+        Returns:
+            Container: The root container with all profile sections
+        """
+
         return Container(
             content=Column(
                 [
@@ -331,16 +357,28 @@ class ProfileView(UserControl):
         )
     
     def update_profile(self, e):
-        """Handle profile update."""
+        """Handle profile information updates.
+
+        Args:
+            e: The click event object
+        """
         # TODO: Implement profile update with API
         print("Update profile")
     
     def change_password(self, e):
-        """Handle password change."""
+        """Handle password change requests.
+
+        Args:
+            e: The click event object
+        """
         # TODO: Implement password change with API
         print("Change password")
     
     def logout(self, e):
-        """Handle logout."""
+        """Handle user logout.
+
+        Args:
+            e: The click event object
+        """
         if self.on_logout:
             self.on_logout(e)

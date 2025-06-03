@@ -6,7 +6,20 @@ from sqlalchemy import not_, or_
 
 
 class ChartCard(ft.Card):
+    """A customizable card component that displays various types of charts.
+
+    This card can display pie, bar, or line charts with data fetched from a database.
+    It handles data visualization with interactive elements and fallback behaviors.
+    """
+
     def __init__(self, title, chart_type="bar", height=300):
+        """Initialize the ChartCard.
+
+        Args:
+            title (str): The title to display on the card
+            chart_type (str): Type of chart to display ('pie', 'bar', or 'line')
+            height (int): Height of the chart in pixels
+        """
         super().__init__()
         self.title = title
         self.chart_type = chart_type
@@ -17,7 +30,11 @@ class ChartCard(ft.Card):
         self.tooltip = None  # Will hold the active tooltip
 
     def get_chart_data(self):
-        """Get real data from the database for this chart"""
+        """Fetch chart data from the database or return default data if unavailable.
+
+        Returns:
+            dict: A dictionary containing chart data with labels, values, and colors
+        """
         try:
             from app.db.database import SessionLocal
             from app.db.models import LogbookEntry, StatusEnum, Category
@@ -389,6 +406,12 @@ class ChartCard(ft.Card):
             }[self.chart_type]
 
     def build_content(self):
+        """Build the card's content with appropriate chart based on chart type.
+
+        Returns:
+            ft.Container: The container with all chart content
+        """
+
         # Create actual chart based on chart type and data
         if self.chart_type == "pie":
             chart = self.create_pie_chart()
@@ -425,7 +448,11 @@ class ChartCard(ft.Card):
         )
 
     def create_pie_chart(self):
-        """Create a pie chart with the data"""
+        """Create an interactive pie chart with the current data.
+
+        Returns:
+            ft.PieChart: The configured pie chart widget
+        """
         try:
             # Check if we have data
             if not self.data or not self.data.get("labels") or not self.data.get("values"):
@@ -535,7 +562,11 @@ class ChartCard(ft.Card):
             return self.create_placeholder(f"Error: {str(e)[:50]}...")
 
     def create_bar_chart(self):
-        """Create a bar chart with the data"""
+        """Create an interactive bar chart with the current data.
+
+        Returns:
+            ft.Container: The container with bar chart visualization
+        """
         try:
             # Check if we have data
             if not self.data or not self.data.get("labels") or not self.data.get("values"):
@@ -712,7 +743,11 @@ class ChartCard(ft.Card):
             return self.create_placeholder(f"Error: {str(e)[:50]}...")
 
     def create_line_chart(self):
-        """Create a line chart with the data"""
+        """Create a line chart with the current data.
+
+        Returns:
+            ft.LineChart: The configured line chart widget
+        """
         try:
             # Check if we have data
             if not self.data or not self.data.get("labels") or not self.data.get("datasets"):
@@ -851,7 +886,14 @@ class ChartCard(ft.Card):
             return self.create_placeholder(f"Error: {str(e)[:50]}...")
 
     def create_enhanced_chart_grid(self, max_value):
-        """Create an enhanced chart grid with data visualizations"""
+        """Create an enhanced grid layout for chart visualization with interactive elements.
+
+        Args:
+            max_value (float): The maximum value in the dataset used for scaling the y-axis
+
+        Returns:
+            ft.Stack: A stack containing grid lines, data points, and trend lines
+        """
         # Create a stack with grid lines and data points
         grid_stack = ft.Stack(expand=True)
 
@@ -973,7 +1015,11 @@ class ChartCard(ft.Card):
         return grid_stack
 
     def create_enhanced_x_axis_labels(self):
-        """Create enhanced X-axis labels for the line chart"""
+        """Create enhanced X-axis labels with improved styling and spacing.
+
+        Returns:
+            ft.Container: A container with formatted X-axis labels
+        """
         # Create a container for the X-axis with increased height
         x_axis_container = ft.Container(
             content=ft.Row(
@@ -1013,7 +1059,11 @@ class ChartCard(ft.Card):
         return x_axis_container
 
     def handle_point_hover(self, e):
-        """Handle hover events for data points in the line chart"""
+        """Handle hover events on data points to show tooltips and highlight points.
+
+        Args:
+            e: The hover event containing point information
+        """
         # Only process hover enter events
         if e.data == "true":  # hover enter
             # Get the data point that triggered the event
@@ -1068,7 +1118,14 @@ class ChartCard(ft.Card):
                 self.page.update()
 
     def create_placeholder(self, message="No data available"):
-        """Create a placeholder when chart data is not available"""
+        """Create a placeholder container when no chart data is available.
+
+        Args:
+            message (str): The message to display in the placeholder
+
+        Returns:
+            ft.Container: A styled container with placeholder content
+        """
         return ft.Container(
             content=ft.Column(
                 [
@@ -1098,7 +1155,13 @@ class ChartCard(ft.Card):
 
 
 class ReportFilters(ft.Column):
+    """A component for filtering report data with date ranges and other criteria."""
     def __init__(self, on_apply=None):
+        """Initialize the ReportFilters component.
+
+        Args:
+            on_apply: Callback function to execute when filters are applied
+        """
         super().__init__()
         self.on_apply = on_apply
 
@@ -1315,6 +1378,11 @@ class ReportFilters(ft.Column):
         self.controls = [self.build_content()]
 
     def build_content(self):
+        """Build the filter UI components.
+
+        Returns:
+            ft.Card: A card containing all filter controls
+        """
         return ft.Card(
             content=ft.Container(
                 content=ft.Column(
@@ -1358,6 +1426,12 @@ class ReportFilters(ft.Column):
         )
 
     def show_date_picker(self, e, is_end_date=False):
+        """Show the date picker dialog for selecting start or end dates.
+
+        Args:
+            e: The click event
+            is_end_date (bool): Whether we're selecting an end date
+        """
         if self.page:
             # Set the flag to track which date field we're updating
             self.is_end_date_selection = is_end_date
@@ -1377,11 +1451,17 @@ class ReportFilters(ft.Column):
             self.page.update()
 
     def update_calendar(self, e):
+        """Update the calendar display when month or year selection changes.
+
+        Args:
+            e: The change event
+        """
         # Update the calendar grid when month or year changes
         self.update_calendar_grid()
         self.page.update()
 
     def update_calendar_grid(self):
+        """Update the calendar grid display based on selected month and year."""
         # Get the dialog content column
         content_column = self.date_dialog.content
 
@@ -1467,6 +1547,11 @@ class ReportFilters(ft.Column):
             calendar_column.controls.append(week_row)
 
     def day_clicked(self, e):
+        """Handle day selection in the calendar.
+
+        Args:
+            e: The click event containing selected day data
+        """
         # Get the selected date from the container's data attribute
         date_str = e.control.data
         if date_str:
@@ -1476,6 +1561,11 @@ class ReportFilters(ft.Column):
             self.set_date(selected_date)
 
     def set_date(self, date):
+        """Set the selected date and update the appropriate field.
+
+        Args:
+            date (datetime): The date to set
+        """
         # Set the selected date and update the appropriate text field
         self.selected_date = date
         formatted_date = date.strftime("%Y-%m-%d")
@@ -1496,12 +1586,21 @@ class ReportFilters(ft.Column):
         self.page.update()
 
     def close_date_dialog(self, e):
+        """Close the date picker dialog.
+
+        Args:
+            e: The click event
+        """
         # Close the date dialog
         self.date_dialog.open = False
         self.page.update()
 
     def apply_filters(self, e):
-        """Apply filters and trigger callback."""
+        """Apply the selected filters and trigger the callback.
+
+        Args:
+            e: The click event
+        """
         # Get date values from the text fields inside the containers
         start_date_field = self.start_date_field.content.controls[1]
         end_date_field = self.end_date_field.content.controls[1]
@@ -1521,7 +1620,13 @@ class ReportFilters(ft.Column):
 
 
 class SummaryStats(ft.Row):
+    """A component that displays summary statistics for logbook entries.
+
+    Shows key metrics like total entries, average resolution times, and completion rates.
+    Data is loaded from the database and displayed in a responsive card layout.
+    """
     def __init__(self):
+        """Initialize the SummaryStats component with default values."""
         super().__init__()
 
         # Initialize with empty values, will be updated with real data
@@ -1541,7 +1646,11 @@ class SummaryStats(ft.Row):
         self.load_data()
 
     def load_data(self):
-        """Load real data from the database"""
+        """Load statistics data from the database.
+
+        Queries the database for total entries, resolution times, and status rates.
+        Updates the component's display values with the fetched data.
+        """
         try:
             from app.db.database import SessionLocal
             from app.db.models import LogbookEntry, StatusEnum
@@ -1686,6 +1795,11 @@ class SummaryStats(ft.Row):
             # Keep default values if there's an error
 
     def build_content(self):
+        """Build the UI components for displaying statistics.
+
+        Returns:
+            ft.Column: A column containing rows of statistic cards
+        """
         # Optimize card dimensions for better fit
         card_width = 170
         card_height = 110
@@ -1755,7 +1869,13 @@ class SummaryStats(ft.Row):
 
 
 class ReportsView(ft.Container):
+    """The main reports view container with tabs for different report types.
+
+    Includes filter controls, summary statistics, and multiple chart visualizations.
+    Provides export functionality for PDF, Excel, and CSV formats.
+    """
     def __init__(self):
+        """Initialize the ReportsView with all components and tabs."""
         super().__init__()
 
         # Initialize components
@@ -2001,6 +2121,11 @@ class ReportsView(ft.Container):
         self.bgcolor = ft.colors.with_opacity(0.01, ft.colors.BLACK)
 
     def build_content(self):
+        """Build and return the main content structure of the ReportsView.
+
+        Returns:
+            ft.Column: A column containing the title, filters, summary stats, and tabs.
+        """
         return ft.Column(
             [
                 ft.Text(
@@ -2020,7 +2145,8 @@ class ReportsView(ft.Container):
         )
 
     def did_mount(self):
-        """Called when the view is mounted in the page"""
+        """Called when the view is mounted in the page.
+        Initializes file pickers and ensures proper page references."""
         # The page reference is automatically set by Flet when the view is mounted
         print(f"ReportsView mounted, page reference: {self.page}")
 
@@ -2034,7 +2160,8 @@ class ReportsView(ft.Container):
         self.rebuild_export_tab()
 
     def rebuild_export_tab(self):
-        """Rebuild the export tab with new buttons to ensure they have the correct page reference"""
+        """Rebuild the export tab with new buttons to ensure they have the correct page reference.
+        This is necessary when the page reference changes or needs to be refreshed."""
         try:
             # Find the Export tab
             for i, tab in enumerate(self.tabs.tabs):
@@ -2123,7 +2250,11 @@ class ReportsView(ft.Container):
             print(f"Error rebuilding export tab: {ex}")
 
     def save_pdf_result(self, e: ft.FilePickerResultEvent):
-        """Handle the result of the PDF file picker dialog"""
+        """Handle the result of the PDF file picker dialog.
+
+        Args:
+            e (ft.FilePickerResultEvent): The file picker result event containing the selected path.
+        """
         try:
             if e.path:
                 print(f"PDF file path selected: {e.path}")
@@ -2155,7 +2286,11 @@ class ReportsView(ft.Container):
                 self.page.update()
 
     def generate_pdf_report(self, file_path):
-        """Generate a PDF report and save it to the specified path"""
+        """Generate a PDF report and save it to the specified path.
+
+        Args:
+            file_path (str): The path where the PDF report should be saved.
+        """
         try:
             # Import required libraries for PDF generation
             from reportlab.lib.pagesizes import letter
@@ -2334,7 +2469,11 @@ class ReportsView(ft.Container):
             raise
 
     def save_excel_result(self, e: ft.FilePickerResultEvent):
-        """Handle the result of the Excel file picker dialog"""
+        """Handle the result of the Excel file picker dialog.
+
+        Args:
+            e (ft.FilePickerResultEvent): The file picker result event containing the selected path.
+        """
         try:
             if e.path:
                 print(f"Excel file path selected: {e.path}")
@@ -2366,7 +2505,11 @@ class ReportsView(ft.Container):
                 self.page.update()
 
     def generate_excel_report(self, file_path):
-        """Generate an Excel report and save it to the specified path"""
+        """Generate an Excel report and save it to the specified path.
+
+        Args:
+            file_path (str): The path where the Excel report should be saved.
+        """
         try:
             # Import required libraries for Excel generation
             import pandas as pd
@@ -2450,7 +2593,11 @@ class ReportsView(ft.Container):
             raise
 
     def save_csv_result(self, e: ft.FilePickerResultEvent):
-        """Handle the result of the CSV file picker dialog"""
+        """Handle the result of the CSV file picker dialog.
+
+        Args:
+            e (ft.FilePickerResultEvent): The file picker result event containing the selected path.
+        """
         try:
             if e.path:
                 print(f"CSV file path selected: {e.path}")
@@ -2482,7 +2629,11 @@ class ReportsView(ft.Container):
                 self.page.update()
 
     def generate_csv_report(self, file_path):
-        """Generate a CSV report and save it to the specified path"""
+        """Generate a CSV report and save it to the specified path.
+
+        Args:
+            file_path (str): The path where the CSV report should be saved.
+        """
         try:
             # Import required libraries for CSV generation
             import csv
@@ -2523,7 +2674,12 @@ class ReportsView(ft.Container):
             raise
 
     def export_to_pdf_direct(self, e):
-        """Direct export to PDF handler that doesn't use optional parameters"""
+        """Direct export to PDF handler that doesn't use optional parameters.
+        Opens the file picker dialog for PDF export.
+
+        Args:
+            e: The click event that triggered this method.
+        """
         print(f"PDF export clicked, event: {e}, page: {self.page}")
         try:
             # Open the save file dialog
@@ -2539,7 +2695,11 @@ class ReportsView(ft.Container):
             print(f"Error exporting to PDF: {ex}")
 
     def export_to_pdf(self, e=None):
-        """Export reports data to PDF format"""
+        """Export reports data to PDF format. Shows a snackbar notification.
+
+        Args:
+            e: Optional event parameter (default: None).
+        """
         try:
             # Show a snackbar notification
             if hasattr(self, 'page') and self.page:
@@ -2557,7 +2717,12 @@ class ReportsView(ft.Container):
             print(f"Error exporting to PDF: {ex}")
 
     def export_to_excel_direct(self, e):
-        """Direct export to Excel handler that doesn't use optional parameters"""
+        """Direct export to Excel handler that doesn't use optional parameters.
+        Opens the file picker dialog for Excel export.
+
+        Args:
+            e: The click event that triggered this method.
+        """
         print(f"Excel export clicked, event: {e}, page: {self.page}")
         try:
             # Open the save file dialog
@@ -2573,7 +2738,11 @@ class ReportsView(ft.Container):
             print(f"Error exporting to Excel: {ex}")
 
     def export_to_excel(self, e=None):
-        """Export reports data to Excel format"""
+        """Export reports data to Excel format. Shows a snackbar notification.
+
+        Args:
+            e: Optional event parameter (default: None).
+        """
         try:
             # Show a snackbar notification
             if hasattr(self, 'page') and self.page:
@@ -2591,7 +2760,12 @@ class ReportsView(ft.Container):
             print(f"Error exporting to Excel: {ex}")
 
     def export_to_csv_direct(self, e):
-        """Direct export to CSV handler that doesn't use optional parameters"""
+        """Direct export to CSV handler that doesn't use optional parameters.
+        Opens the file picker dialog for CSV export.
+
+        Args:
+            e: The click event that triggered this method.
+        """
         print(f"CSV export clicked, event: {e}, page: {self.page}")
         try:
             # Open the save file dialog
@@ -2607,7 +2781,11 @@ class ReportsView(ft.Container):
             print(f"Error exporting to CSV: {ex}")
 
     def export_to_csv(self, e=None):
-        """Export reports data to CSV format"""
+        """Export reports data to CSV format. Shows a snackbar notification.
+
+        Args:
+            e: Optional event parameter (default: None).
+        """
         try:
             # Show a snackbar notification
             if hasattr(self, 'page') and self.page:
@@ -2625,7 +2803,11 @@ class ReportsView(ft.Container):
             print(f"Error exporting to CSV: {ex}")
 
     def configure_scheduled_reports(self, e):
-        """Open the scheduled reports configuration dialog"""
+        """Open the scheduled reports configuration dialog.
+
+        Args:
+            e: The click event that triggered this method.
+        """
         try:
             print("Configure scheduled reports button clicked")
             # Create a dialog for scheduled reports configuration
@@ -2864,7 +3046,14 @@ class ReportsView(ft.Container):
                 self.page.update()
 
     def save_report_config(self, email, frequency, report_type, dialog_container):
-        """Save the scheduled report configuration"""
+        """Save the scheduled report configuration.
+
+        Args:
+            email (str): The email address to receive reports.
+            frequency (str): The frequency of reports ('daily', 'weekly', 'monthly').
+            report_type (str): The type of report ('summary', 'detailed', 'custom').
+            dialog_container: Reference to the dialog container to be closed.
+        """
         try:
             # Validate email input
             if not email or '@' not in email or '.' not in email:
@@ -2898,40 +3087,58 @@ class ReportsView(ft.Container):
             print(f"Error saving report configuration: {ex}")
 
     def close_dialog(self, dialog):
-        """Close the dialog"""
+        """Close the specified dialog.
+
+        Args:
+            dialog: The dialog to be closed.
+        """
         dialog.open = False
         self.page.update()
 
     def toggle_frequency_menu(self):
-        """Toggle the visibility of the frequency dropdown menu"""
+        """Toggle the visibility of the frequency dropdown menu."""
         self.frequency_options.visible = not self.frequency_options.visible
         # Hide the other dropdown menu
         self.report_type_options.visible = False
         self.page.update()
 
     def select_frequency(self, value, display_text):
-        """Select a frequency option"""
+        """Select a frequency option and update the display.
+
+        Args:
+            value (str): The internal value of the selected frequency.
+            display_text (str): The text to display for the selected frequency.
+        """
         self.frequency_value = value
         self.frequency_display.content.controls[0].value = display_text
         self.frequency_options.visible = False
         self.page.update()
 
     def toggle_report_type_menu(self):
-        """Toggle the visibility of the report type dropdown menu"""
+        """Toggle the visibility of the report type dropdown menu."""
         self.report_type_options.visible = not self.report_type_options.visible
         # Hide the other dropdown menu
         self.frequency_options.visible = False
         self.page.update()
 
     def select_report_type(self, value, display_text):
-        """Select a report type option"""
+        """Select a report type option and update the display.
+
+        Args:
+            value (str): The internal value of the selected report type.
+            display_text (str): The text to display for the selected report type.
+        """
         self.report_type_value = value
         self.report_type_display.content.controls[0].value = display_text
         self.report_type_options.visible = False
         self.page.update()
 
     def close_custom_dialog(self, dialog_container):
-        """Close the custom dialog by removing it from the page overlay"""
+        """Close the custom dialog by removing it from the page overlay.
+
+        Args:
+            dialog_container: The dialog container to be removed.
+        """
         try:
             if dialog_container in self.page.overlay:
                 self.page.overlay.remove(dialog_container)
@@ -2941,7 +3148,11 @@ class ReportsView(ft.Container):
             print(f"Error closing custom dialog: {ex}")
 
     def refresh_charts(self, filter_data):
-        """Refresh all charts with new data based on the filter data"""
+        """Refresh all charts with new data based on the filter data.
+
+        Args:
+            filter_data (dict): Dictionary containing filter parameters.
+        """
         # Create new chart instances with fresh data
         self.chart_issues_by_category = ChartCard("Issues by Category", chart_type="pie")
         self.chart_issues_by_location = ChartCard("Issues by Location", chart_type="pie")
@@ -2964,7 +3175,16 @@ class ReportsView(ft.Container):
         print("Charts refreshed with new data")
 
     def update_reports(self, filter_data):
-        """Update reports based on filter data."""
+        """Update reports based on filter data. This includes:
+        - Updating summary statistics
+        - Refreshing all charts
+        - Calculating metrics like completion rate and average resolution time
+
+        Args:
+            filter_data (dict): Dictionary containing filter parameters including:
+                - start_date: Start date for filtering
+                - end_date: End date for filtering
+        """
         from app.db.database import SessionLocal
         from app.db.models import LogbookEntry, StatusEnum, Category
         from sqlalchemy import not_, or_

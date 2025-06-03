@@ -24,8 +24,27 @@ from flet import (
 )
 from datetime import datetime, date
 
+"""Logbook Management Components.
+
+This module contains the UI components for managing logbook entries,
+including forms, lists, and the main logbook view.
+"""
 
 class LogbookEntryForm(UserControl):
+    """Form component for creating/editing logbook entries.
+
+    Args:
+        on_submit: Callback for form submission
+        on_cancel: Callback for form cancellation
+        entry_data: Existing entry data for editing
+
+    Features:
+        - Form validation
+        - File attachments
+        - Responsive layout
+        - Status tracking
+    """
+
     def __init__(self, on_submit=None, on_cancel=None, entry_data=None):
         super().__init__()
         self.on_submit = on_submit
@@ -143,6 +162,7 @@ class LogbookEntryForm(UserControl):
         self.selected_files = Text("No files selected")
     
     def file_picker_result(self, e):
+        """Handle file selection results from file picker."""
         if e.files:
             file_names = [file.name for file in e.files]
             self.selected_files.value = f"Selected files: {', '.join(file_names)}"
@@ -151,6 +171,7 @@ class LogbookEntryForm(UserControl):
         self.selected_files.update()
     
     def build(self):
+        """Build the form UI with all input fields and controls."""
         return Card(
             content=Container(
                 content=Column(
@@ -306,7 +327,7 @@ class LogbookEntryForm(UserControl):
         )
     
     def submit_form(self, e):
-        """Handle form submission."""
+        """Handle form submission with validation and data collection."""
         # Validate form
         if not self.validate_form():
             return
@@ -336,7 +357,11 @@ class LogbookEntryForm(UserControl):
             self.on_cancel()
     
     def validate_form(self):
-        """Validate form fields."""
+        """Validate required form fields.
+
+        Returns:
+            bool: True if valid, False otherwise
+        """
         # Check required fields
         if not self.start_date_field.value:
             self.start_date_field.error_text = "Start date is required"
@@ -364,6 +389,20 @@ class LogbookEntryForm(UserControl):
 
 
 class LogbookEntryList(UserControl):
+    """List component for displaying and managing logbook entries.
+
+    Args:
+        on_view: Callback for viewing an entry
+        on_edit: Callback for editing an entry
+        on_delete: Callback for deleting an entry
+
+    Features:
+        - Search and filtering
+        - Data table display
+        - Action buttons (view/edit/delete)
+        - Add new entry functionality
+    """
+
     def __init__(self, on_view=None, on_edit=None, on_delete=None):
         super().__init__()
         self.on_view = on_view
@@ -436,7 +475,11 @@ class LogbookEntryList(UserControl):
         self.data_table = self.build_data_table()
     
     def build_data_table(self):
-        """Build the data table with current entries."""
+        """Build the DataTable component with current entries.
+
+        Returns:
+            DataTable: Configured table with entry data
+        """
         columns = [
             DataColumn(Text("Start Date")),
             DataColumn(Text("Responsible")),
@@ -526,6 +569,7 @@ class LogbookEntryList(UserControl):
         )
     
     def build(self):
+        """Build the complete list UI with search and table."""
         return Column(
             [
                 Row(
@@ -548,34 +592,46 @@ class LogbookEntryList(UserControl):
         )
     
     def filter_entries(self, e):
-        """Filter entries based on search and status filter."""
+        """Filter entries based on search and status criteria."""
         # TODO: Implement actual filtering with API
         # For now, just rebuild the table
         self.data_table = self.build_data_table()
         self.update()
     
     def view_entry(self, entry_id):
-        """View entry details."""
+        """Trigger view callback for an entry."""
         if self.on_view:
             self.on_view(entry_id)
     
     def edit_entry(self, entry_id):
-        """Edit entry."""
+        """Trigger edit callback for an entry."""
         if self.on_edit:
             self.on_edit(entry_id)
     
     def delete_entry(self, entry_id):
-        """Delete entry."""
+        """Trigger delete callback for an entry."""
         if self.on_delete:
             self.on_delete(entry_id)
     
     def add_new_entry(self, e):
-        """Add new entry."""
+        """Trigger add new entry callback."""
         if self.on_edit:
             self.on_edit(None)  # None indicates a new entry
 
 
 class LogbookView(UserControl):
+    """Main logbook management view.
+
+    Combines:
+        - LogbookEntryList for browsing
+        - LogbookEntryForm for editing
+
+    Features:
+        - Toggle between list and form views
+        - Entry CRUD operations
+        - State management
+    """
+
     def __init__(self):
         super().__init__()
         self.show_form = False
@@ -591,6 +647,7 @@ class LogbookView(UserControl):
         self.entry_form = None
     
     def build(self):
+        """Build the view with current state (list or form)."""
         content = Column(
             [
                 Text(
@@ -618,23 +675,23 @@ class LogbookView(UserControl):
         )
     
     def view_entry(self, entry_id):
-        """View entry details."""
+        """Handle view entry action."""
         # TODO: Implement view entry details
         print(f"View entry {entry_id}")
     
     def edit_entry(self, entry_id):
-        """Edit entry."""
+        """Switch to edit form for an entry."""
         self.current_entry_id = entry_id
         self.show_form = True
         self.update()
     
     def delete_entry(self, entry_id):
-        """Delete entry."""
+        """Handle delete entry action."""
         # TODO: Implement delete entry
         print(f"Delete entry {entry_id}")
     
     def submit_form(self, form_data):
-        """Handle form submission."""
+        """Handle form submission and return to list view."""
         # TODO: Implement form submission to API
         print(f"Submit form: {form_data}")
         self.show_form = False
@@ -642,13 +699,17 @@ class LogbookView(UserControl):
         self.update()
     
     def cancel_form(self):
-        """Handle form cancellation."""
+        """Handle form cancellation and return to list view."""
         self.show_form = False
         self.current_entry_id = None
         self.update()
     
     def get_entry_data(self):
-        """Get entry data for editing."""
+        """Get entry data for editing.
+
+        Returns:
+            dict: Entry data for the current entry_id
+        """
         # TODO: Implement getting entry data from API
         if not self.current_entry_id:
             return {}

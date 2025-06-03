@@ -14,11 +14,19 @@ from app.ui.views.reports_view import ReportsView
 from app.ui.views.settings_view import SettingsView
 from app.ui.views.login_view import LoginView
 
+"""PreventPlus - Maintenance Management Application.
+
+This module contains the main Flet application for the PreventPlus system,
+including UI setup, routing, and view management.
+"""
+
 # Load environment variables
 load_dotenv()
+"""Loads configuration from .env file."""
 
 # Create database tables if they don't exist
 Base.metadata.create_all(bind=engine)
+"""Initializes database schema on startup."""
 
 # Database is now persistent - entries will be saved between application restarts
 
@@ -30,6 +38,18 @@ reports_view = None
 
 
 def main(page: ft.Page):
+    """Main Flet application entry point.
+
+    Args:
+        page: The Flet Page instance representing the application window
+
+    Configures:
+        - Application theme and styling
+        - View routing and navigation
+        - Database initialization
+        - User authentication flow
+    """
+
     page.title = "PreventPlus"
     # Use a light theme with orange accent color
     page.theme = ft.Theme(
@@ -60,6 +80,12 @@ def main(page: ft.Page):
 
     # Function to toggle between light and dark theme
     def toggle_theme(e):
+        """Toggle between light and dark color themes.
+
+        Args:
+            e: Event object from Flet control
+        """
+
         if page.theme_mode == ft.ThemeMode.LIGHT:
             # Set dark theme
             page.theme_mode = ft.ThemeMode.DARK
@@ -98,6 +124,17 @@ def main(page: ft.Page):
 
     # Function to initialize all views
     def initialize_views(page):
+        """Initialize all application views and load initial data.
+
+        Args:
+            page: Flet Page instance for view initialization
+
+        Initializes:
+            - Dashboard view with statistics
+            - Recent activity view
+            - Reports view
+            - Settings view
+        """
         global dashboard_view, recent_activity_view, reports_view, settings_view
         from datetime import datetime
 
@@ -210,6 +247,12 @@ def main(page: ft.Page):
 
     # Function to show login screen
     def show_login(page):
+        """Display login screen and handle authentication flow.
+
+        Args:
+            page: Flet Page instance for UI updates
+        """
+
         page.clean()
 
         # Use the custom LoginView instead of hardcoded login form
@@ -227,11 +270,24 @@ def main(page: ft.Page):
 
     # Function to handle successful login
     def handle_successful_login(page, user):
+        """Handle post-login initialization and routing.
+
+        Args:
+            page: Flet Page instance for UI updates
+            user: Authenticated user object
+        """
         initialize_views(page)
         page.go("/dashboard")
 
     # Function to handle route changes
     def route_change(e, page):
+        """Handle application route changes and view switching.
+
+        Args:
+            e: Route change event object
+            page: Flet Page instance for UI updates
+        """
+
         route_path = e.route
 
         # If not initialized, initialize views
@@ -316,8 +372,15 @@ def main(page: ft.Page):
 # Define port for the application
 # Default port with environment variable override
 PORT = int(os.getenv("PORT", "8558"))  # Default port is 8558
+"""Default application port with environment variable override."""
 
 if __name__ == "__main__":
+    """Main entry point when run as a script.
+
+    Handles:
+        - Command line argument parsing
+        - Application startup
+    """
     import argparse
 
     # Set up command line argument parsing

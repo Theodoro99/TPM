@@ -17,9 +17,28 @@ from flet import (
     border_radius,
 )
 
+"""New Logbook Entry View Module.
+
+This module contains the NewEntryView class which provides
+a comprehensive form for creating new maintenance logbook entries.
+"""
 
 class NewEntryView(ft.Column):
+    """A form for creating new maintenance logbook entries.
+
+    Args:
+        on_save: Callback function that receives entry data upon submission
+        on_cancel: Callback function for when the form is cancelled
+
+    Features:
+        - Responsive form layout with validation
+        - Date picker with calendar interface
+        - Multi-select checkboxes for tasks and locations
+        - Status, category and priority dropdowns
+        - Error handling and validation
+    """
     def __init__(self, on_save=None, on_cancel=None):
+        """Initialize the form components and layout."""
         super().__init__()
         self.on_save = on_save
         self.on_cancel = on_cancel
@@ -346,6 +365,12 @@ class NewEntryView(ft.Column):
         self.setup_ui()
 
     def setup_ui(self):
+        """Construct the complete form UI layout.
+
+        Arranges all form fields in a logical, user-friendly layout
+        with appropriate spacing and organization.
+        """
+
         # Create form container
         form_container = Container(
             content=Column(
@@ -515,6 +540,13 @@ class NewEntryView(ft.Column):
         self.controls = [form_container]
 
     def show_date_picker(self, e, is_end_date=False):
+        """Display the date picker dialog.
+
+        Args:
+            e: The click event object
+            is_end_date: Whether we're selecting the end date (vs start date)
+        """
+
         if self.page:
             # Set the flag to track which date field we're updating
             self.is_end_date_selection = is_end_date
@@ -534,11 +566,19 @@ class NewEntryView(ft.Column):
             self.page.update()
 
     def update_calendar(self, e):
+        """Update the calendar display when month/year changes.
+
+        Args:
+            e: The change event object
+        """
+
         # Update the calendar grid when month or year changes
         self.update_calendar_grid()
         self.page.update()
 
     def update_calendar_grid(self):
+        """Generate the calendar grid for the selected month/year."""
+
         # Get the dialog content column
         content_column = self.date_dialog.content
 
@@ -603,6 +643,11 @@ class NewEntryView(ft.Column):
             calendar_grid.controls.append(week_row)
 
     def day_clicked(self, e):
+        """Handle selection of a day in the calendar.
+
+        Args:
+            e: The click event containing day/month/year data
+        """
         # Handle day button click
         day = e.control.data["day"]
         month = e.control.data["month"]
@@ -613,6 +658,12 @@ class NewEntryView(ft.Column):
         self.set_date(selected_date)
 
     def set_date(self, date):
+        """Set the selected date to the appropriate field.
+
+        Args:
+            date: The datetime object to set
+        """
+
         # Set the selected date and update the appropriate text field
         self.selected_date = date
         formatted_date = date.strftime("%Y-%m-%d")
@@ -633,11 +684,29 @@ class NewEntryView(ft.Column):
         self.page.update()
 
     def close_date_dialog(self, e):
+        """Close the date picker dialog.
+
+        Args:
+            e: The click event object
+        """
+
         # Close the date dialog
         self.date_dialog.open = False
         self.page.update()
 
     def handle_save(self, e):
+        """Handle form submission with validation.
+
+        Performs:
+            - Field validation
+            - Data collection from form fields
+            - Error handling
+            - Success callback
+
+        Args:
+            e: The click event object
+        """
+
         # Validate form
         if not self.responsible_person_field.value:
             self.show_error_dialog("Responsible Person is required")
@@ -735,10 +804,22 @@ class NewEntryView(ft.Column):
             self.on_save(entry_data)
 
     def handle_cancel(self, e):
+        """Handle form cancellation.
+
+        Args:
+            e: The click event object
+        """
+
         if self.on_cancel:
             self.on_cancel()
 
     def show_error_dialog(self, message):
+        """Display an error dialog with the given message.
+
+        Args:
+            message: The error message to display
+        """
+
         if self.page:
             def close_dlg(e):
                 dlg_modal.open = False

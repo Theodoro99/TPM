@@ -1,9 +1,29 @@
 import flet as ft
 from flet import icons
 
+"""Login View Module.
+
+This module contains the LoginView class which provides
+a complete authentication interface for the PreventPlus application.
+"""
+
 
 class LoginView(ft.Container):
+    """A modern login interface with dark theme and professional styling.
+
+    Args:
+        on_login: Callback function that receives user data upon successful authentication
+
+    Features:
+        - Clean, professional UI with dark theme
+        - Form validation
+        - Database authentication
+        - Responsive layout
+        - Error handling
+    """
+
     def __init__(self, on_login=None):
+        """Initialize the login view components and layout."""
         super().__init__()
         self.on_login = on_login
         self.expand = True
@@ -15,6 +35,13 @@ class LoginView(ft.Container):
         self.content = self._build_login_ui()
 
     def _init_ui_components(self):
+        """Initialize all UI components with their styling and properties.
+
+        Creates:
+            - Username/password fields with custom styling
+            - Error message display
+            - Login button with enhanced visibility
+        """
         # Text fields with improved styling for dark theme
         self.username_field = ft.TextField(
             label="Username",
@@ -65,6 +92,13 @@ class LoginView(ft.Container):
         # Removed forgot password button as requested
 
     def _build_login_ui(self):
+        """Construct the complete login interface layout.
+
+        Returns:
+            Row: The main layout containing:
+                - Decorative left panel with branding
+                - Right panel with login form
+        """
         # Create a modern, professional login page with black and orange theme
         return ft.Row(
             [
@@ -185,7 +219,17 @@ class LoginView(ft.Container):
         )
 
     def login_clicked(self, e):
-        """Handle login button click."""
+        """Handle the login button click event.
+
+        Performs:
+            - Field validation
+            - Database authentication
+            - Error handling
+            - Success callback
+
+        Args:
+            e: The click event object
+        """
         username = self.username_field.value
         password = self.password_field.value
 

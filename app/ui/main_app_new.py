@@ -8,9 +8,24 @@ from app.ui.views.reports_view import ReportsView
 from app.ui.views.settings_view import SettingsView
 from app.ui.views.profile_view import ProfileView
 
+"""PreventPlus - Maintenance Management Application.
+
+This module contains the main Flet application implementation for PreventPlus,
+including authentication flow, view management, and UI components.
+"""
 
 def main(page: ft.Page):
-    """Main entry point for the Flet application."""
+    """Main entry point for the Flet application.
+
+    Args:
+        page: The Flet Page instance representing the application window
+
+    Configures:
+        - Application title and theme
+        - Authentication state management
+        - View navigation system
+        - UI layout and components
+    """
     # Set page properties
     page.title = "PreventPlus"
     page.theme = ft.Theme(color_scheme_seed=ft.colors.BLUE)
@@ -23,6 +38,17 @@ def main(page: ft.Page):
     
     # Create navigation buttons
     def create_nav_button(label, icon, selected_icon, view_name):
+        """Create a navigation button component.
+
+        Args:
+            label: Text label for the button
+            icon: Icon for unselected state
+            selected_icon: Icon for selected state
+            view_name: Associated view identifier
+
+        Returns:
+            Container: A styled navigation button control
+        """
         selected = view_name == current_view
         return ft.Container(
             content=ft.Column(
@@ -80,12 +106,25 @@ def main(page: ft.Page):
     
     # Function to handle view changes
     def change_view(e, view_name):
+        """Handle navigation between different views.
+
+        Args:
+            e: The click event object
+            view_name: Identifier of the view to switch to
+        """
+
         nonlocal current_view
         current_view = view_name
         update_ui()
     
     # Function to handle login
     def handle_login(user):
+        """Handle successful user authentication.
+
+        Args:
+            user: The authenticated user object
+        """
+
         nonlocal is_authenticated, current_user
         is_authenticated = True
         current_user = user
@@ -93,6 +132,7 @@ def main(page: ft.Page):
     
     # Function to handle logout
     def handle_logout():
+        """Handle user logout and reset authentication state."""
         nonlocal is_authenticated, current_user
         is_authenticated = False
         current_user = None
@@ -100,6 +140,7 @@ def main(page: ft.Page):
     
     # Function to toggle theme mode
     def toggle_theme_mode():
+        """Toggle between light and dark theme modes."""
         if page.theme_mode == ft.ThemeMode.LIGHT:
             page.theme_mode = ft.ThemeMode.DARK
         else:
@@ -108,6 +149,15 @@ def main(page: ft.Page):
     
     # Function to get the current view content
     def get_current_view():
+        """Get the currently active view control.
+
+        Returns:
+            Control: The view control corresponding to current_view
+
+        Note:
+            Defaults to dashboard view if no matching view found
+        """
+
         if current_view == "dashboard":
             return dashboard_view
         elif current_view == "logbook":
@@ -123,6 +173,15 @@ def main(page: ft.Page):
     
     # Function to update the UI
     def update_ui():
+        """Update the application UI based on current state.
+
+        Handles:
+            - Authentication state (login vs main app)
+            - View selection
+            - Navigation bar rendering
+            - Theme application
+        """
+
         # Clear the page
         page.controls.clear()
         

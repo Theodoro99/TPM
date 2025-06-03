@@ -8,14 +8,22 @@ import enum
 
 from .database import Base
 
+"""Database models for the PreventPlus application.
+
+This module contains all SQLAlchemy ORM models representing the database schema.
+Includes models for user management, logbook entries, locations, categories,
+attachments, audit logging, and reporting functionality.
+"""
 
 class RoleEnum(str, enum.Enum):
+    """Enumeration for user roles."""
     ADMIN = "admin"
     MANAGER = "manager"
     TECHNICIAN = "technician"
 
 
 class StatusEnum(str, enum.Enum):
+    """Enumeration for logbook entry statuses."""
     OPEN = "open"
     ONGOING = "ongoing"
     COMPLETED = "completed"
@@ -23,12 +31,32 @@ class StatusEnum(str, enum.Enum):
 
 
 class PriorityEnum(str, enum.Enum):
+    """Enumeration for logbook entry priorities."""
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
 
 
 class User(Base):
+    """User model representing application users.
+
+    Attributes:
+        id: UUID primary key
+        username: Unique username
+        email: Unique email address
+        password_hash: Hashed password
+        full_name: User's full name
+        role: User role (admin/manager/technician)
+        department: Department affiliation
+        phone_number: Contact number
+        is_active: Account active status
+        created_at: Account creation timestamp
+        updated_at: Last update timestamp
+        last_login: Last login timestamp
+        failed_attempts: Failed login attempts counter
+        reset_token: Password reset token
+        token_expiry: Reset token expiration
+    """
     __tablename__ = "users"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -58,6 +86,30 @@ class User(Base):
 
 
 class LogbookEntry(Base):
+    """Logbook entry model representing maintenance records.
+
+    Attributes:
+        id: UUID primary key
+        user_id: Creator user reference
+        start_date: Entry start date
+        end_date: Completion date
+        responsible_person: Responsible individual
+        location_id: Location reference
+        device: Device/equipment involved
+        task: Task description
+        call_description: Issue description
+        solution_description: Resolution details
+        resolution_time: Time taken to resolve
+        status: Current status (open/ongoing/completed/escalation)
+        downtime_hours: Downtime duration
+        category_id: Category reference
+        priority: Priority level (low/medium/high)
+        created_at: Creation timestamp
+        updated_at: Last update timestamp
+        completed_by_id: User who completed the entry
+        is_deleted: Soft delete flag
+    """
+
     __tablename__ = "logbook_entries"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -89,6 +141,21 @@ class LogbookEntry(Base):
 
 
 class Attachment(Base):
+    """Attachment model for logbook entry files.
+
+    Attributes:
+        id: UUID primary key
+        entry_id: Associated logbook entry
+        file_name: Original filename
+        file_path: Storage path
+        file_type: MIME type
+        file_size: File size in bytes
+        description: Optional description
+        uploaded_by_id: Uploading user reference
+        uploaded_at: Upload timestamp
+        is_deleted: Soft delete flag
+    """
+
     __tablename__ = "attachments"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -108,6 +175,19 @@ class Attachment(Base):
 
 
 class Location(Base):
+    """Location model for equipment/device locations.
+
+    Attributes:
+        id: Integer primary key
+        name: Unique location name
+        description: Location details
+        parent_id: Parent location reference
+        created_at: Creation timestamp
+        updated_at: Last update timestamp
+        created_by_id: Creator user reference
+        is_active: Active status flag
+    """
+
     __tablename__ = "locations"
 
     id = Column(Integer, primary_key=True)
@@ -127,6 +207,19 @@ class Location(Base):
 
 
 class Category(Base):
+    """Category model for logbook entry classification.
+
+    Attributes:
+        id: Integer primary key
+        name: Unique category name
+        description: Category details
+        color_code: Hex color code for UI
+        created_at: Creation timestamp
+        updated_at: Last update timestamp
+        created_by_id: Creator user reference
+        is_active: Active status flag
+    """
+
     __tablename__ = "categories"
 
     id = Column(Integer, primary_key=True)
@@ -144,6 +237,19 @@ class Category(Base):
 
 
 class Setting(Base):
+    """System settings model for configuration storage.
+
+    Attributes:
+        id: Integer primary key
+        key: Unique setting key
+        value: Setting value
+        description: Setting purpose
+        is_system: System setting flag
+        created_at: Creation timestamp
+        updated_at: Last update timestamp
+        updated_by_id: Last modifying user
+    """
+
     __tablename__ = "settings"
 
     id = Column(Integer, primary_key=True)
@@ -160,6 +266,20 @@ class Setting(Base):
 
 
 class AuditLog(Base):
+    """Audit log model for tracking system actions.
+
+    Attributes:
+        id: UUID primary key
+        user_id: Acting user reference
+        action: Performed action
+        entity_type: Affected entity type
+        entity_id: Affected entity ID
+        details: Action details (JSON)
+        ip_address: Request origin IP
+        user_agent: Client user agent
+        created_at: Event timestamp
+    """
+
     __tablename__ = "audit_logs"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -177,6 +297,20 @@ class AuditLog(Base):
 
 
 class ReportTemplate(Base):
+    """Report template model for predefined report configurations.
+
+    Attributes:
+        id: Integer primary key
+        name: Template name
+        description: Template purpose
+        template_type: Report type classification
+        config: JSON configuration
+        created_by_id: Creator user reference
+        created_at: Creation timestamp
+        updated_at: Last update timestamp
+        is_active: Active status flag
+    """
+
     __tablename__ = "report_templates"
 
     id = Column(Integer, primary_key=True)
@@ -195,6 +329,22 @@ class ReportTemplate(Base):
 
 
 class Report(Base):
+    """Report model for generated reports.
+
+    Attributes:
+        id: UUID primary key
+        name: Report name
+        template_id: Template reference
+        parameters: Filter parameters (JSON)
+        start_date: Report period start
+        end_date: Report period end
+        file_path: Generated file path
+        file_type: Output format
+        status: Generation status
+        created_by_id: Creator user reference
+        created_at: Generation timestamp
+    """
+
     __tablename__ = "reports"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -216,6 +366,24 @@ class Report(Base):
 
 
 class ReportSchedule(Base):
+    """Report schedule model for automated report generation.
+
+    Attributes:
+        id: Integer primary key
+        report_id: Report reference
+        frequency: Execution frequency
+        day_of_week: Weekly execution day
+        day_of_month: Monthly execution day
+        time_of_day: Execution time
+        recipients: Email recipients (JSON)
+        is_active: Schedule active status
+        last_run: Last execution time
+        next_run: Next execution time
+        created_by_id: Creator user reference
+        created_at: Creation timestamp
+        updated_at: Last update timestamp
+    """
+
     __tablename__ = "report_schedules"
 
     id = Column(Integer, primary_key=True)

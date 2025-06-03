@@ -5,30 +5,44 @@ from fastapi import UploadFile, HTTPException
 from pathlib import Path
 from dotenv import load_dotenv
 
+"""File upload and management service.
+
+This module handles file operations including:
+- Saving uploaded files with size validation
+- File deletion
+- File path resolution
+"""
+
 # Load environment variables
 load_dotenv()
+"""Loads configuration from .env file."""
 
 # Get upload directory from environment variables or use default
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "./static/uploads")
-MAX_UPLOAD_SIZE = int(os.getenv("MAX_UPLOAD_SIZE", 10485760))  # Default 10MB
+"""Base directory for file uploads (configurable via environment)."""
+
+MAX_UPLOAD_SIZE = int(os.getenv("MAX_UPLOAD_SIZE", 10485760))# Default 10MB
+"""Maximum allowed file upload size in bytes (default: 10MB)."""
 
 # Ensure upload directory exists
 Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
-
+"""Creates upload directory if it doesn't exist."""
 
 async def save_upload_file(upload_file: UploadFile, entry_id: uuid.UUID) -> tuple[str, int]:
-    """
-    Save an uploaded file to the file system.
-    
+    """Save an uploaded file with chunked processing and size validation.
+
     Args:
-        upload_file: The uploaded file
-        entry_id: The ID of the logbook entry
-        
+        upload_file: FastAPI UploadFile object containing file data
+        entry_id: UUID of associated logbook entry
+
     Returns:
-        Tuple of (file_path, file_size)
-        
+        tuple: (relative_path, file_size) where:
+            relative_path: Path relative to UPLOAD_DIR
+            file_size: Size of saved file in bytes
+
     Raises:
-        HTTPException: If file is too large or cannot be saved
+        HTTPException: 413 if file exceeds size limit
+        HTTPException: 500 if file cannot be saved
     """
     # Create directory for this entry if it doesn't exist
     entry_dir = os.path.join(UPLOAD_DIR, str(entry_id))
@@ -72,14 +86,14 @@ async def save_upload_file(upload_file: UploadFile, entry_id: uuid.UUID) -> tupl
 
 
 def delete_file(file_path: str) -> bool:
-    """
-    Delete a file from the file system.
-    
+    """Safely delete a file from the upload directory.
+
     Args:
-        file_path: The relative path to the file
-        
+        file_path: Relative path to file (from UPLOAD_DIR)
+
     Returns:
-        True if successful, False otherwise
+        bool: True if file was deleted or didn't exist,
+              False if deletion failed
     """
     full_path = os.path.join(UPLOAD_DIR, file_path)
     try:
@@ -92,13 +106,12 @@ def delete_file(file_path: str) -> bool:
 
 
 def get_file_path(file_path: str) -> str:
-    """
-    Get the full path to a file.
-    
+    """Resolve relative file path to absolute system path.
+
     Args:
-        file_path: The relative path to the file
-        
+        file_path: Relative path to file (from UPLOAD_DIR)
+
     Returns:
-        The full path to the file
+        str: Absolute filesystem path to the file
     """
     return os.path.join(UPLOAD_DIR, file_path)
