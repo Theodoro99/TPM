@@ -25,9 +25,26 @@ from app.db.database import SessionLocal
 from app.db.models import LogbookEntry
 from app.utils.date_utils import format_date
 
+"""Recent Activity View Module.
+
+This module contains the RecentActivityView class which provides
+a comprehensive interface for viewing and managing recent maintenance activities.
+"""
 
 class RecentActivityView(ft.Column):
+    """A view for displaying and managing recent maintenance logbook entries.
+
+    Features:
+        - Filterable list of recent entries
+        - Date range filtering
+        - Status and search filters
+        - Entry viewing, editing and deletion
+        - Report generation
+        - Responsive layout with cards
+    """
+
     def __init__(self):
+        """Initialize the view with empty entry lists and UI components."""
         super().__init__()
         self.entries = []
         self.filtered_entries = []
@@ -168,24 +185,26 @@ class RecentActivityView(ft.Column):
         self.controls = [main_container]
 
     def init_date_range(self):
-        """Initialize default date range for filters (last 30 days)"""
+        """Initialize default date range for filters (last 30 days)."""
         today = datetime.now()
         self.end_date_value = today
         self.start_date_value = today - timedelta(days=30)
 
     def did_mount(self):
+        """Load initial data when the view is mounted to the page."""
         # This method is called when the control is added to the page
         # Load initial data
         self.load_entries()
         self.update()
 
     def build(self):
+        """Build method kept for compatibility (does nothing)."""
         # This method is no longer needed for ft.Column
         # It's kept for compatibility but doesn't do anything
         pass
 
     def create_filter_components(self):
-        """Create filter UI components"""
+        """Create UI components for filtering entries."""
         # Start date picker
         self.start_date_picker = TextField(
             value=self.start_date_value.strftime("%Y-%m-%d") if self.start_date_value else "",
@@ -229,7 +248,7 @@ class RecentActivityView(ft.Column):
         )
 
     def create_delete_dialog(self):
-        """Create confirmation dialog for delete operations"""
+        """Create confirmation dialog for delete operations."""
         self.delete_dialog = ft.AlertDialog(
             modal=True,
             title=Text("Confirm Deletion"),
@@ -242,7 +261,7 @@ class RecentActivityView(ft.Column):
         )
 
     def create_date_dialog(self):
-        """Create a custom date picker dialog"""
+        """Create a custom date picker dialog with month/year selection."""
         # Create month and year dropdowns
         current_year = datetime.now().year
         month_dropdown = ft.Dropdown(
@@ -301,7 +320,11 @@ class RecentActivityView(ft.Column):
         )
 
     def show_date_picker(self, date_type):
-        """Show date picker for start or end date"""
+        """Show date picker dialog for selecting start or end dates.
+
+        Args:
+            date_type: Either "start" or "end" to indicate which date is being selected
+        """
         if self.page:
             # Set the flag to track which date field we're updating
             self.is_start_date_selection = (date_type == "start")
@@ -322,12 +345,16 @@ class RecentActivityView(ft.Column):
             self.page.update()
 
     def update_calendar(self, e):
-        """Update calendar when month or year changes"""
+        """Update calendar display when month or year changes.
+
+        Args:
+            e: The change event object
+        """
         self.update_calendar_grid()
         self.page.update()
 
     def update_calendar_grid(self):
-        """Update the calendar grid with days for the selected month and year"""
+        """Update the calendar grid with days for selected month/year."""
         # Get the dialog content column
         content_column = self.date_dialog.content
 
@@ -392,7 +419,11 @@ class RecentActivityView(ft.Column):
             calendar_grid.controls.append(week_row)
 
     def day_clicked(self, e):
-        """Handle day button click in calendar"""
+        """Handle day selection in calendar.
+
+        Args:
+            e: The click event containing day/month/year data
+        """
         day = e.control.data["day"]
         month = e.control.data["month"]
         year = e.control.data["year"]
@@ -400,7 +431,11 @@ class RecentActivityView(ft.Column):
         self.set_date(selected_date)
 
     def set_date(self, date):
-        """Set the selected date and update the appropriate text field"""
+        """Set the selected date to the appropriate field.
+
+        Args:
+            date: The datetime.date object to set
+        """
         self.selected_date = date
         formatted_date = date.strftime("%Y-%m-%d")
 
@@ -422,12 +457,16 @@ class RecentActivityView(ft.Column):
         self.update()
 
     def close_date_dialog(self, e):
-        """Close the date dialog"""
+        """Close the date picker dialog.
+
+        Args:
+            e: The click event object (optional)
+        """
         self.date_dialog.open = False
         self.page.update()
 
     def load_entries(self):
-        """Load entries from database based on current filters"""
+        """Load entries from database based on current filters."""
         with SessionLocal() as session:
             # Get all entries ordered by creation date (newest first)
             # No need to filter by is_deleted since we're now using hard delete
@@ -478,7 +517,7 @@ class RecentActivityView(ft.Column):
             self.update_entries_list()
 
     def update_entries_list(self):
-        """Update the entries list in the UI"""
+        """Update the UI with current filtered entries."""
         self.entries_column.controls.clear()
 
         if not self.filtered_entries:
@@ -497,7 +536,14 @@ class RecentActivityView(ft.Column):
         self.page.update()
 
     def create_entry_card(self, entry):
-        """Create a card for a single entry with comprehensive details"""
+        """Create a styled card for displaying an entry.
+
+        Args:
+            entry: The LogbookEntry object to display
+
+        Returns:
+            Card: A styled card component with entry details
+        """
         # Determine status color
         status_color = colors.BLUE
         if entry.status == "Open":
@@ -750,11 +796,19 @@ class RecentActivityView(ft.Column):
         )
 
     def apply_filters(self, e=None):
-        """Apply current filters and reload entries"""
+        """Apply current filters and reload entries.
+
+        Args:
+            e: The click event object (optional)
+        """
         self.load_entries()
 
     def reset_filters(self, e=None):
-        """Reset filters to default values"""
+        """Reset all filters to default values.
+
+        Args:
+            e: The click event object (optional)
+        """
         self.init_date_range()
         self.start_date_picker.value = self.start_date_value.strftime("%Y-%m-%d")
         self.end_date_picker.value = self.end_date_value.strftime("%Y-%m-%d")
@@ -764,7 +818,12 @@ class RecentActivityView(ft.Column):
         self.load_entries()
 
     def view_entry_details(self, entry_id, e=None):
-        """View details of a specific entry"""
+        """View detailed information for a specific entry.
+
+        Args:
+            entry_id: The ID of the entry to view
+            e: The click event object (optional)
+        """
         print(f"Viewing entry {entry_id}")
 
         # Convert entry_id to string for consistent comparison
@@ -857,7 +916,11 @@ class RecentActivityView(ft.Column):
         print("Page updated with dialog")
 
     def close_details_dialog(self, e=None):
-        """Close the details dialog"""
+        """Close the entry details dialog.
+
+        Args:
+            e: The click event object (optional)
+        """
         print("Closing details dialog")
         if self.page.dialog:
             self.page.dialog.open = False
@@ -865,7 +928,11 @@ class RecentActivityView(ft.Column):
             print("Dialog closed")
 
     def close_delete_dialog(self, e=None):
-        """Close the delete confirmation dialog"""
+        """Close the delete confirmation dialog.
+
+        Args:
+            e: The click event object (optional)
+        """
         print("Closing delete dialog")
         if self.delete_dialog:
             self.delete_dialog.open = False
@@ -873,7 +940,12 @@ class RecentActivityView(ft.Column):
             print("Delete dialog closed")
 
     def delete_entry_by_id(self, entry_id, e=None):
-        """Show confirmation dialog before deleting an entry by ID"""
+        """Delete an entry by ID after confirmation.
+
+        Args:
+            entry_id: The ID of the entry to delete
+            e: The click event object (optional)
+        """
         # Disable the button that triggered this method to prevent multiple clicks
         if e and hasattr(e, 'control') and e.control:
             e.control.disabled = True
@@ -955,7 +1027,11 @@ class RecentActivityView(ft.Column):
     # close_delete_dialog method is defined below - no need to duplicate it
 
     def confirm_delete(self, e=None):
-        """Hard delete the entry after confirmation (completely remove from database)"""
+        """Confirm and execute entry deletion.
+
+        Args:
+            e: The click event object (optional)
+        """
         print(f"Confirming deletion of entry: {self.entry_to_delete.id if self.entry_to_delete else 'None'}")
         success = False
         entry_id_to_remove = None
@@ -1037,14 +1113,22 @@ class RecentActivityView(ft.Column):
             self.page.update()
 
     def return_to_home(self, e=None):
-        """Navigate back to the home/dashboard page"""
+        """Navigate back to the home/dashboard view.
+
+        Args:
+            e: The click event object (optional)
+        """
         if hasattr(self.page, "go"):
             self.page.go("/")
         else:
             print("Navigation not available")
 
     def edit_entry_by_id(self, entry_id):
-        """Edit an existing entry by ID"""
+        """Edit an existing entry by ID.
+
+        Args:
+            entry_id: The ID of the entry to edit
+        """
         # Import here to avoid circular imports
         from app.ui.views.new_entry_view import NewEntryView
 
@@ -1206,7 +1290,11 @@ class RecentActivityView(ft.Column):
             self.page.update()
 
     def handle_generate_report(self, e=None):
-        """Generate a report based on current filtered entries"""
+        """Generate a report from current filtered entries.
+
+        Args:
+            e: The click event object (optional)
+        """
         if not self.filtered_entries:
             # Show a message if there are no entries to include in the report
             self.page.snack_bar = ft.SnackBar(

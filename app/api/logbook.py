@@ -17,6 +17,15 @@ from app.schemas.logbook import (
 )
 from app.services.file_service import save_upload_file
 
+"""Logbook API endpoints.
+
+This module provides CRUD operations for logbook entries including:
+- Creating, reading, updating, and deleting entries
+- Managing entry statuses
+- Handling file attachments
+- Advanced search functionality
+"""
+
 router = APIRouter(
     prefix="/logbook",
     tags=["logbook"],
@@ -30,8 +39,18 @@ async def create_logbook_entry(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    """
-    Create a new logbook entry.
+    """Create a new logbook entry.
+
+    Args:
+        entry: Logbook entry data to create
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        LogbookEntrySchema: The created logbook entry
+
+    Raises:
+        HTTPException: 404 if location or category not found
     """
     # Verify location exists
     location = db.query(Location).filter(Location.id == entry.location_id).first()
@@ -76,10 +95,25 @@ async def read_logbook_entries(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
+    """Retrieve paginated list of logbook entries with optional filters.
+
+    Args:
+        skip: Number of records to skip for pagination
+        limit: Maximum number of records to return
+        status: Filter by entry status
+        start_date_from: Filter entries starting after this date
+        start_date_to: Filter entries starting before this date
+        location_id: Filter by location ID
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        List[LogbookEntrySchema]: List of logbook entries
+
+    Notes:
+        Technicians can only see their own entries
     """
-    Retrieve logbook entries with optional filtering.
-    Managers and admins can see all entries, technicians can only see their own.
-    """
+
     query = db.query(LogbookEntry).filter(LogbookEntry.is_deleted == False)
     
     # Apply role-based filtering
@@ -110,9 +144,21 @@ async def read_logbook_entry(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
+
+    """Get detailed information about a specific logbook entry.
+
+    Args:
+        entry_id: UUID of the logbook entry
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        LogbookEntryDetail: Detailed logbook entry information
+
+    Raises:
+        HTTPException: 404 if entry not found, 403 if unauthorized
     """
-    Get a specific logbook entry by ID.
-    """
+
     entry = db.query(LogbookEntry).filter(LogbookEntry.id == entry_id, LogbookEntry.is_deleted == False).first()
     if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
@@ -146,9 +192,22 @@ async def update_logbook_entry(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
+    """Update an existing logbook entry.
+
+    Args:
+        entry_id: UUID of the entry to update
+        entry_update: Updated entry data
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        LogbookEntrySchema: The updated logbook entry
+
+    Raises:
+        HTTPException: 404 if entry/location/category not found, 403 if unauthorized
     """
-    Update an existing logbook entry.
-    """
+
+
     db_entry = db.query(LogbookEntry).filter(LogbookEntry.id == entry_id, LogbookEntry.is_deleted == False).first()
     if not db_entry:
         raise HTTPException(status_code=404, detail="Entry not found")
@@ -201,9 +260,21 @@ async def update_entry_status(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
+    """Update the status of a logbook entry.
+
+    Args:
+        entry_id: UUID of the entry to update
+        status_update: New status and optional solution details
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        LogbookEntrySchema: The updated logbook entry
+
+    Raises:
+        HTTPException: 404 if entry not found, 403 if unauthorized
     """
-    Update the status of a logbook entry.
-    """
+
     db_entry = db.query(LogbookEntry).filter(LogbookEntry.id == entry_id, LogbookEntry.is_deleted == False).first()
     if not db_entry:
         raise HTTPException(status_code=404, detail="Entry not found")
@@ -249,9 +320,17 @@ async def delete_logbook_entry(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
+    """Soft delete a logbook entry (mark as deleted without removing from DB).
+
+    Args:
+        entry_id: UUID of the entry to delete
+        db: Database session
+        current_user: Authenticated user
+
+    Raises:
+        HTTPException: 404 if entry not found, 403 if unauthorized
     """
-    Soft delete a logbook entry.
-    """
+
     db_entry = db.query(LogbookEntry).filter(LogbookEntry.id == entry_id, LogbookEntry.is_deleted == False).first()
     if not db_entry:
         raise HTTPException(status_code=404, detail="Entry not found")
@@ -284,9 +363,22 @@ async def upload_attachment(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
+    """Upload a file attachment for a logbook entry.
+
+    Args:
+        entry_id: UUID of the associated logbook entry
+        file: File to upload
+        description: Optional description of the attachment
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        dict: Contains attachment ID and filename
+
+    Raises:
+        HTTPException: 404 if entry not found, 403 if unauthorized
     """
-    Upload a file attachment for a logbook entry.
-    """
+
     # Check if entry exists
     entry = db.query(LogbookEntry).filter(LogbookEntry.id == entry_id, LogbookEntry.is_deleted == False).first()
     if not entry:
@@ -335,9 +427,23 @@ async def search_logbook_entries(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
+    """Advanced search for logbook entries with multiple filter criteria.
+
+    Args:
+        search_params: Search criteria object
+        skip: Number of records to skip for pagination
+        limit: Maximum number of records to return
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        List[LogbookEntrySchema]: List of matching logbook entries
+
+    Notes:
+        Supports text search across multiple fields
+        Technicians can only search their own entries
     """
-    Advanced search for logbook entries.
-    """
+
     query = db.query(LogbookEntry).filter(LogbookEntry.is_deleted == False)
     
     # Apply role-based filtering

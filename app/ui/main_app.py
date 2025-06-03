@@ -17,9 +17,34 @@ from app.ui.views.settings_view import SettingsView
 from app.ui.views.profile_view import ProfileView
 from app.ui.views.recent_activity_view import RecentActivityView
 
+"""PreventPlus Main Application Module.
+
+This module contains the main Flet application class and entry point for the PreventPlus
+maintenance management system, including UI setup, navigation, and view management.
+"""
 
 class MainApp(Control):
+    """Main application control class for PreventPlus.
+
+    Handles:
+    - Application layout and theming
+    - User authentication state
+    - View navigation and routing
+    - Theme management
+    """
     def __init__(self, page: Page):
+        """Initialize the main application.
+
+        Args:
+            page: The Flet Page instance for this application
+
+        Initializes:
+            - Page configuration (title, size, theme)
+            - Route handling
+            - View instances
+            - Navigation components
+            - Authentication state
+        """
         super().__init__()
         self.page = page
         self.page.title = "PreventPlus"
@@ -117,6 +142,16 @@ class MainApp(Control):
         )
     
     def build(self):
+        """Build the application UI based on authentication state.
+
+        Returns:
+            Control: The root control for the application UI
+
+        Behavior:
+            - Shows login view if not authenticated
+            - Shows main application with navigation if authenticated
+        """
+
         # If not authenticated, show login view
         if not self.is_authenticated:
             return self.login_view
@@ -139,7 +174,14 @@ class MainApp(Control):
         )
     
     def get_current_view(self):
-        """Return the current view based on self.current_view."""
+        """Get the currently active view control.
+
+        Returns:
+            Control: The view control corresponding to current_view
+
+        Note:
+            Defaults to dashboard view if no matching view found
+        """
         if self.current_view == "dashboard":
             return self.dashboard_view
         elif self.current_view == "logbook":
@@ -157,7 +199,11 @@ class MainApp(Control):
             return self.dashboard_view
     
     def handle_navigation_change(self, e):
-        """Handle navigation tabs selection change."""
+        """Handle navigation tab selection changes.
+
+        Args:
+            e: The control event from tab selection
+        """
         index = e.control.selected_index
         
         if index == 0:
@@ -176,19 +222,31 @@ class MainApp(Control):
         self.update()
     
     def handle_login(self, user):
-        """Handle successful login."""
+        """Handle successful user authentication.
+
+        Args:
+            user: The authenticated user object
+        """
         self.is_authenticated = True
         self.current_user = user
         self.update()
     
     def handle_logout(self, e=None):
-        """Handle logout."""
+        """Handle user logout and reset authentication state.
+
+        Args:
+            e: Optional event object (default: None)
+        """
         self.is_authenticated = False
         self.current_user = None
         self.update()
     
     def toggle_theme_mode(self, e):
-        """Toggle between light and dark theme."""
+        """Toggle between light and dark theme modes.
+
+        Args:
+            e: The click event object
+        """
         if self.page.theme_mode == ft.ThemeMode.LIGHT:
             self.page.theme_mode = ft.ThemeMode.DARK
         else:
@@ -196,7 +254,11 @@ class MainApp(Control):
         self.page.update()
     
     def route_change(self, route):
-        """Handle route changes for navigation."""
+        """Handle application route changes.
+
+        Args:
+            route: The new route path
+        """
         route_path = route.route
         
         if route_path == "/":
@@ -221,13 +283,25 @@ class MainApp(Control):
         self.update()
     
     def view_pop(self, view):
-        """Handle view pop for navigation."""
+        """Handle view pop events (back navigation).
+
+        Args:
+            view: The view being popped
+        """
         self.page.go("/")
         self.update()
 
 
 def main(page: Page):
-    """Main entry point for the Flet application."""
+    """Main entry point for the Flet application.
+
+    Args:
+        page: The Flet Page instance provided by flet.app
+
+    Initializes:
+        - Main application control
+        - Initial routing
+    """
     # Initialize the page with routing
     page.views.clear()
     page.go('/')

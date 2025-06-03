@@ -19,7 +19,18 @@ from flet import (
 )
 
 class ReportView(ft.Column):
+    """A view for generating various types of reports with customizable filters and date ranges.
+
+    Provides UI components for selecting report type, date range, status and priority filters,
+    and output format. Includes date picker dialogs for selecting start and end dates.
+    """
     def __init__(self, on_generate=None, on_back=None):
+        """Initialize the ReportView.
+
+        Args:
+            on_generate: Callback function to be called when generating a report
+            on_back: Callback function to be called when going back
+        """
         super().__init__()
         self.on_generate = on_generate
         self.on_back = on_back
@@ -222,6 +233,7 @@ class ReportView(ft.Column):
         self.setup_ui()
     
     def setup_ui(self):
+        """Set up the user interface with all report generation controls."""
         # Create report container
         report_container = Container(
             content=Column(
@@ -376,6 +388,11 @@ class ReportView(ft.Column):
         self.controls = [report_container]
     
     def show_start_date_picker(self, e):
+        """Show the start date picker dialog.
+
+        Args:
+            e: The event that triggered this action
+        """
         if self.page:
             # Add date dialog to page overlay if not already added
             if self.start_date_dialog not in self.page.overlay:
@@ -389,6 +406,11 @@ class ReportView(ft.Column):
             self.page.update()
             
     def show_end_date_picker(self, e):
+        """Show the end date picker dialog.
+
+        Args:
+            e: The event that triggered this action
+        """
         if self.page:
             # Add date dialog to page overlay if not already added
             if self.end_date_dialog not in self.page.overlay:
@@ -403,11 +425,17 @@ class ReportView(ft.Column):
             
     # Start date calendar methods
     def update_start_calendar(self, e):
+        """Update the start date calendar when month or year changes.
+
+        Args:
+            e: The event that triggered this update
+        """
         # Update the calendar grid when month or year changes
         self.update_start_calendar_grid()
         self.page.update()
     
     def update_start_calendar_grid(self):
+        """Update the calendar grid display for start date selection."""
         # Get the selected month and year from dropdowns
         month_dropdown = self.start_date_dialog.content.controls[4].controls[0]
         year_dropdown = self.start_date_dialog.content.controls[4].controls[1]
@@ -466,6 +494,12 @@ class ReportView(ft.Column):
             calendar_grid.controls.append(week_row)
     
     def start_day_clicked(self, e):
+        """Handle day selection in the start date calendar.
+
+        Args:
+            e: The event containing the selected day data
+        """
+
         # Handle day button click for start date
         day = e.control.data["day"]
         month = e.control.data["month"]
@@ -476,6 +510,12 @@ class ReportView(ft.Column):
         self.set_start_date(selected_date)
     
     def set_start_date(self, date):
+        """Set the selected start date and update the UI.
+
+        Args:
+            date: The datetime object to set as start date
+        """
+
         # Set the selected start date and update the text field
         self.start_selected_date = date
         formatted_date = date.strftime("%Y-%m-%d")
@@ -489,17 +529,28 @@ class ReportView(ft.Column):
         self.page.update()
     
     def close_start_date_dialog(self, e):
+        """Close the start date picker dialog.
+
+        Args:
+            e: The event that triggered this action
+        """
         # Close the start date dialog
         self.start_date_dialog.open = False
         self.page.update()
     
     # End date calendar methods
     def update_end_calendar(self, e):
+        """Update the end date calendar when month or year changes.
+
+        Args:
+            e: The event that triggered this update
+        """
         # Update the calendar grid when month or year changes
         self.update_end_calendar_grid()
         self.page.update()
     
     def update_end_calendar_grid(self):
+        """Update the calendar grid display for end date selection."""
         # Get the selected month and year from dropdowns
         month_dropdown = self.end_date_dialog.content.controls[4].controls[0]
         year_dropdown = self.end_date_dialog.content.controls[4].controls[1]
@@ -558,6 +609,12 @@ class ReportView(ft.Column):
             calendar_grid.controls.append(week_row)
     
     def end_day_clicked(self, e):
+        """Handle day selection in the end date calendar.
+
+        Args:
+            e: The event containing the selected day data
+        """
+
         # Handle day button click for end date
         day = e.control.data["day"]
         month = e.control.data["month"]
@@ -568,6 +625,12 @@ class ReportView(ft.Column):
         self.set_end_date(selected_date)
     
     def set_end_date(self, date):
+        """Set the selected end date and update the UI.
+
+        Args:
+            date: The datetime object to set as end date
+        """
+
         # Set the selected end date and update the text field
         self.end_selected_date = date
         formatted_date = date.strftime("%Y-%m-%d")
@@ -581,11 +644,24 @@ class ReportView(ft.Column):
         self.page.update()
     
     def close_end_date_dialog(self, e):
+        """Close the end date picker dialog.
+
+        Args:
+            e: The event that triggered this action
+        """
         # Close the end date dialog
         self.end_date_dialog.open = False
         self.page.update()
     
     def handle_generate(self, e):
+        """Handle the generate report button click.
+
+        Validates inputs, collects report parameters, and triggers report generation.
+
+        Args:
+            e: The event that triggered this action
+        """
+
         # Validate form
         if not self.report_type_dropdown.value:
             self.show_error_dialog("Please select a report type")
@@ -629,10 +705,20 @@ class ReportView(ft.Column):
             self.on_generate(report_params)
     
     def handle_back(self, e):
+        """Handle the back button click.
+
+        Args:
+            e: The event that triggered this action
+        """
         if self.on_back:
             self.on_back()
     
     def show_error_dialog(self, message):
+        """Show an error dialog with the specified message.
+
+        Args:
+            message: The error message to display
+        """
         if self.page:
             def close_dlg(e):
                 dlg_modal.open = False
@@ -653,6 +739,7 @@ class ReportView(ft.Column):
             self.page.update()
     
     def show_generating_dialog(self):
+        """Show a dialog indicating report generation is in progress."""
         if self.page:
             def close_dlg(e):
                 dlg_modal.open = False
@@ -688,6 +775,7 @@ class ReportView(ft.Column):
             self.page.after(3000, lambda _: close_dlg(None))
     
     def show_download_dialog(self):
+        """Show a dialog with download options after report generation."""
         if self.page:
             def close_dlg(e):
                 dlg_modal.open = False
@@ -727,6 +815,7 @@ class ReportView(ft.Column):
             self.page.update()
     
     def handle_download(self):
+        """Handle the download report button click."""
         # Simulate download (would be replaced with actual download)
         if self.page:
             def close_dlg(e):

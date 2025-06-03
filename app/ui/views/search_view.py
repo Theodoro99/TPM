@@ -21,7 +21,32 @@ from flet import (
 from datetime import datetime
 
 class SearchView(ft.Column):
+    """A view component for searching and displaying logbook entries.
+
+    This class provides a user interface for searching logbook entries with various filters
+    and displaying the results in a table format. It includes functionality for viewing
+    and editing individual entries.
+
+    Attributes:
+        on_search (callable): Callback function to execute when search is performed.
+        on_back (callable): Callback function to execute when back button is clicked.
+        expand (bool): Whether the view should expand to fill available space.
+        scroll (ScrollMode): Scroll behavior of the view.
+        keyword_field (TextField): Input field for search keyword.
+        status_dropdown (Dropdown): Dropdown for filtering by status.
+        priority_dropdown (Dropdown): Dropdown for filtering by priority.
+        results_table (DataTable): Table for displaying search results.
+    """
+
     def __init__(self, on_search=None, on_back=None):
+        """Initialize the SearchView component.
+
+        Args:
+            on_search (callable, optional): Callback function for search operations.
+                Receives search parameters as a dictionary.
+            on_back (callable, optional): Callback function for back button clicks.
+        """
+
         super().__init__()
         self.on_search = on_search
         self.on_back = on_back
@@ -104,6 +129,12 @@ class SearchView(ft.Column):
         self.setup_ui()
     
     def setup_ui(self):
+        """Set up the user interface components and layout.
+
+        This method creates and arranges all UI elements including search fields,
+        results table, and navigation buttons.
+        """
+
         # Create search container
         search_container = Container(
             content=Column(
@@ -190,6 +221,15 @@ class SearchView(ft.Column):
         self.controls = [search_container]
     
     def handle_search(self, e):
+        """Handle the search button click event.
+
+        Collects search parameters from input fields and executes the search operation.
+        If no callback is provided, displays demo results.
+
+        Args:
+            e: The event object from the button click.
+        """
+
         # Get search criteria
         keyword = self.keyword_field.value
         status = self.status_dropdown.value
@@ -211,6 +251,14 @@ class SearchView(ft.Column):
             self.show_demo_results()
     
     def update_results_table(self, results):
+        """Update the results table with new data.
+
+        Args:
+            results (list): A list of dictionaries containing logbook entry data.
+                Each dictionary should contain keys: id, device, description,
+                status, priority, and date.
+        """
+
         # Clear existing rows
         self.results_table.rows.clear()
         
@@ -249,6 +297,12 @@ class SearchView(ft.Column):
         self.update()
     
     def show_demo_results(self):
+        """Display demonstration results in the table.
+
+        This method is used when no search callback is provided, showing sample data
+        for demonstration purposes.
+        """
+
         # Sample results for demonstration
         demo_results = [
             {
@@ -280,6 +334,14 @@ class SearchView(ft.Column):
         self.update_results_table(demo_results)
     
     def handle_view(self, entry_id):
+        """Handle the view action for a specific logbook entry.
+
+        Displays a modal dialog with details for the specified entry.
+
+        Args:
+            entry_id (str): The ID of the entry to view.
+        """
+
         # Show details dialog
         if self.page:
             def close_dlg(e):
@@ -301,6 +363,14 @@ class SearchView(ft.Column):
             self.page.update()
     
     def handle_edit(self, entry_id):
+        """Handle the edit action for a specific logbook entry.
+
+        Displays a modal dialog for editing the specified entry.
+
+        Args:
+            entry_id (str): The ID of the entry to edit.
+        """
+
         # Show edit dialog
         if self.page:
             def close_dlg(e):
@@ -323,5 +393,12 @@ class SearchView(ft.Column):
             self.page.update()
     
     def handle_back(self, e):
+        """Handle the back button click event.
+
+        Executes the back callback if one is provided.
+
+        Args:
+            e: The event object from the button click.
+        """
         if self.on_back:
             self.on_back()

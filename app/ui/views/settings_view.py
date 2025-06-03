@@ -8,7 +8,16 @@ import uuid
 
 # Common UI helper functions
 def create_search_field(label="Search", width=300):
-    """Create a standard search field"""
+    """Create a standard search text field.
+
+    Args:
+        label (str): The label for the search field. Defaults to "Search".
+        width (int): The width of the search field in pixels. Defaults to 300.
+
+    Returns:
+        ft.TextField: Configured search text field.
+    """
+
     return ft.TextField(
         label=label,
         icon=ft.icons.SEARCH,
@@ -17,7 +26,17 @@ def create_search_field(label="Search", width=300):
 
 
 def create_action_button(text, icon, on_click, color=ft.colors.ORANGE_600):
-    """Create a standard action button"""
+    """Create a standard action button with consistent styling.
+
+    Args:
+        text (str): The button text.
+        icon: The icon to display on the button.
+        on_click: The callback function for button clicks.
+        color: The background color of the button. Defaults to ORANGE_600.
+
+    Returns:
+        ft.ElevatedButton: Configured action button.
+    """
     return ft.ElevatedButton(
         text=text,
         icon=icon,
@@ -31,7 +50,15 @@ def create_action_button(text, icon, on_click, color=ft.colors.ORANGE_600):
 
 
 def create_standard_row(search_field, action_button):
-    """Create a standard row with search field and action button"""
+    """Create a standard row layout with search field and action button.
+
+    Args:
+        search_field: The search field widget.
+        action_button: The action button widget.
+
+    Returns:
+        ft.Row: Configured row layout.
+    """
     return ft.Row(
         [
             search_field,
@@ -44,7 +71,17 @@ def create_standard_row(search_field, action_button):
 
 
 def create_confirm_dialog(title, content, on_confirm, on_cancel=None):
-    """Create a standard confirmation dialog"""
+    """Create a standard confirmation dialog.
+
+    Args:
+        title (str): The dialog title.
+        content: The dialog content (text or widget).
+        on_confirm: Callback for confirm action.
+        on_cancel: Callback for cancel action. Optional.
+
+    Returns:
+        ft.AlertDialog: Configured confirmation dialog.
+    """
     return ft.AlertDialog(
         modal=True,
         title=ft.Text(title),
@@ -59,9 +96,26 @@ def create_confirm_dialog(title, content, on_confirm, on_cancel=None):
 
 # Base Tab class with common functionality
 class BaseTab(ft.Column):
-    """Base class for all settings tabs with common functionality"""
+    """Base class for all settings tabs with common functionality.
+
+    Attributes:
+        page: Reference to the Flet page.
+        db (Session): Database session.
+        entity_name (str): Name of the entity being managed.
+        search_label (str): Label for the search field.
+        search_field: Search field widget.
+        scroll: Scroll behavior for the tab.
+    """
 
     def __init__(self, entity_name, search_label=None):
+        """Initialize the base tab.
+
+        Args:
+            entity_name (str): Name of the entity being managed.
+            search_label (str, optional): Custom label for search field.
+                Defaults to "Search {entity_name}s".
+        """
+
         super().__init__()
         self.page = None
         self.db = SessionLocal()
@@ -75,13 +129,22 @@ class BaseTab(ft.Column):
         self.scroll = ft.ScrollMode.AUTO
 
     def close_dialog(self, e):
-        """Close the dialog."""
+        """Close the currently open dialog.
+
+        Args:
+            e: The event object.
+        """
         if self.page and self.page.dialog:
             self.page.dialog.open = False
             self.page.update()
 
     def show_snack_bar(self, message, color=ft.colors.GREEN_600):
-        """Show a snack bar message"""
+        """Show a snack bar message.
+
+        Args:
+            message (str): The message to display.
+            color: The background color of the snackbar. Defaults to GREEN_600.
+        """
         if self.page:
             self.page.snack_bar = ft.SnackBar(
                 content=ft.Text(message, color=ft.colors.WHITE),
@@ -92,7 +155,12 @@ class BaseTab(ft.Column):
 
 
 class UserManagementTab(BaseTab):
+    """Tab for managing user accounts.
+
+    Inherits from BaseTab and adds user-specific functionality.
+    """
     def __init__(self):
+        """Initialize the user management tab."""
         super().__init__(entity_name="User", search_label="Search Users")
 
         # Load users from database
@@ -118,7 +186,11 @@ class UserManagementTab(BaseTab):
         ]
 
     def show_add_user_dialog(self, e):
-        """Show the add user dialog."""
+        """Show the dialog for adding a new user.
+
+        Args:
+            e: The event object from the button click.
+        """
         print("show_add_user_dialog called")
         try:
             if not hasattr(self, 'page') or self.page is None:
@@ -278,7 +350,11 @@ class UserManagementTab(BaseTab):
             traceback.print_exc()
 
     def close_dialog(self, e):
-        """Close the dialog or overlay form."""
+        """Close the dialog or overlay form.
+
+        Args:
+            e: The event object.
+        """
         # Handle overlay form (new method)
         if self.page:
             # Check if there's an overlay to remove
@@ -297,7 +373,11 @@ class UserManagementTab(BaseTab):
             print("Form closed")
 
     def validate_email_field(self, e):
-        """Validate email field as user types and provide immediate feedback."""
+        """Validate email field as user types and provide immediate feedback.
+
+        Args:
+            e: The event object containing the field value.
+        """
         email = e.control.value
         if not email:
             # Empty field - clear any error
@@ -318,7 +398,11 @@ class UserManagementTab(BaseTab):
         e.control.update()
 
     def edit_user(self, e):
-        """Edit an existing user."""
+        """Edit an existing user.
+
+        Args:
+            e: The event object containing the user ID to edit.
+        """
         try:
             # Get the user ID from the event data
             user_id = e.control.data
@@ -527,7 +611,12 @@ class UserManagementTab(BaseTab):
             traceback.print_exc()
 
     def save_user_changes(self, e, user_id=None):
-        """Save changes to an edited user."""
+        """Save changes to an edited user.
+
+        Args:
+            e: The event object.
+            user_id: Optional user ID if not using the stored editing_user_id.
+        """
         try:
             # Use the provided user_id if available, otherwise use the stored one
             user_id_to_use = user_id if user_id else self.editing_user_id
@@ -681,7 +770,11 @@ class UserManagementTab(BaseTab):
                 self.page.update()
 
     def close_delete_dialog(self, e=None):
-        """Close the delete confirmation dialog."""
+        """Close the delete confirmation dialog.
+
+        Args:
+            e: Optional event object.
+        """
         print("DEBUG: Attempting to close delete dialog")
         if self.page and hasattr(self.page, 'dialog') and self.page.dialog:
             print("DEBUG: Found dialog, closing it")
@@ -693,7 +786,7 @@ class UserManagementTab(BaseTab):
             self.page.update()
 
     def load_users_from_db(self):
-        """Load users from the database."""
+        """Load users from the database into the UI."""
         try:
             # Query all users from the database
             db_users = self.db.query(User).all()
@@ -781,7 +874,11 @@ class UserManagementTab(BaseTab):
             ]
 
     def add_user(self, e):
-        """Add a new user to the database."""
+        """Add a new user to the database.
+
+        Args:
+            e: The event object.
+        """
         print("add_user method called")
         try:
             # Get form values
@@ -966,7 +1063,11 @@ class UserManagementTab(BaseTab):
                 self.page.update()
 
     def delete_user(self, e):
-        """Delete a user from the system using a direct approach without dialogs."""
+        """Delete a user from the system using a direct approach without dialogs.
+
+        Args:
+            e: The event object containing the user ID to delete.
+        """
         try:
             # Prevent multiple clicks
             if hasattr(e, 'control'):
@@ -1105,14 +1206,26 @@ class UserManagementTab(BaseTab):
                     self.page.update()
 
     def cancel_delete(self, e, confirm_container):
-        """Cancel the deletion process and remove the confirmation banner."""
+        """Cancel the deletion process and remove the confirmation banner.
+
+        Args:
+            e: The event object.
+            confirm_container: The confirmation container to remove.
+        """
         print("DEBUG: Delete canceled")
         if confirm_container in self.controls:
             self.controls.remove(confirm_container)
             self.update()
 
     def confirm_delete_user(self, e, user_id, username, confirm_container):
-        """Confirm and execute user deletion."""
+        """Confirm and execute user deletion.
+
+        Args:
+            e: The event object.
+            user_id: The ID of the user to delete.
+            username: The username of the user being deleted.
+            confirm_container: The confirmation container to remove.
+        """
         print(f"DEBUG: Confirming deletion of user: {username} with ID: {user_id}")
 
         # Remove the confirmation container
@@ -1178,13 +1291,23 @@ class UserManagementTab(BaseTab):
             print("DEBUG: Database session closed")
 
     def handle_delete_button_click(self, e, user_id, username):
-        """Handle the click event for the Delete button in the confirmation dialog."""
+        """Handle the click event for the Delete button in the confirmation dialog.
+
+        Args:
+            e: The event object.
+            user_id: The ID of the user to delete.
+            username: The username of the user being deleted.
+        """
         print(f"DEBUG: handle_delete_button_click called for user: {username} with ID: {user_id}")
         self.perform_delete_user(user_id)
         self.close_dialog(e)
 
     def perform_delete_user(self, e):
-        """Execute the deletion of a user after confirmation."""
+        """Execute the deletion of a user after confirmation.
+
+        Args:
+            e: The event object containing the user ID to delete.
+        """
         print("======================================================")
         print(f"DEBUG: perform_delete_user called with event type: {type(e)}")
         print(f"DEBUG: Event details: {e}")
@@ -1475,7 +1598,11 @@ class UserManagementTab(BaseTab):
         self.close_dialog(None)
 
     def build_user_table(self):
-        """Build the user table with current users."""
+        """Build the user table with current users.
+
+        Returns:
+            ft.DataTable: Configured data table displaying all users.
+        """
         try:
             columns = [
                 ft.DataColumn(ft.Text("Username", color=ft.colors.BLACK)),
@@ -1560,7 +1687,11 @@ class UserManagementTab(BaseTab):
             return ft.Text(f"Error loading users: {str(e)}")
 
     def toggle_user_status(self, e):
-        """Toggle user active status."""
+        """Toggle user active status.
+
+        Args:
+            e: The event object containing the user ID and new status.
+        """
         try:
             # Get the user ID and index from the event data
             data = e.control.data
@@ -1650,7 +1781,17 @@ class UserManagementTab(BaseTab):
 
 
 class LocationsTab(BaseTab):
+    """A tab for managing locations in the application.
+
+    This tab provides functionality to view, add, edit, and delete locations.
+    It displays locations in a table format with search and CRUD operations.
+    """
     def __init__(self):
+        """Initialize the Locations tab.
+
+        Sets up the UI elements including search field, add button, and location table.
+        Loads initial location data from the database.
+        """
         super().__init__(entity_name="Location", search_label="Search Locations")
 
         # Load locations from database
@@ -1674,7 +1815,14 @@ class LocationsTab(BaseTab):
         ]
 
     def build_location_table(self):
-        """Build the location table with current locations."""
+        """Build and return a DataTable widget displaying all locations.
+
+        The table includes columns for name, description, address, status, and actions.
+        Each row represents a location with edit and delete action buttons.
+
+        Returns:
+            ft.DataTable: A configured DataTable widget showing location information.
+        """
         columns = [
             ft.DataColumn(ft.Text("Name", color=ft.colors.BLACK)),
             ft.DataColumn(ft.Text("Description", color=ft.colors.BLACK)),
@@ -1744,7 +1892,11 @@ class LocationsTab(BaseTab):
         )
 
     def load_locations_from_db(self):
-        """Load locations from the database."""
+        """Load locations from the database into the application.
+
+        Attempts to query locations from the database. If the query fails,
+        falls back to a predefined set of location data.
+        """
         try:
             # Query all locations from the database
             db_locations = self.db.query(Location).all()
@@ -1908,7 +2060,11 @@ class LocationsTab(BaseTab):
             ]
 
     def show_add_location_dialog(self, e):
-        """Show dialog to add a new location."""
+        """Display a dialog for adding a new location.
+
+        Args:
+            e: The event that triggered this action.
+        """
         if self.page:
             # Create text fields for the dialog
             self.name_field = ft.TextField(label="Location Name", autofocus=True)
@@ -1941,13 +2097,21 @@ class LocationsTab(BaseTab):
             self.page.update()
 
     def close_dialog(self, e):
-        """Close the dialog."""
+        """Close any currently open dialog.
+
+        Args:
+            e: The event that triggered this action.
+        """
         if self.page and self.page.dialog:
             self.page.dialog.open = False
             self.page.update()
 
     def add_location(self, e):
-        """Add a new location to the system."""
+        """Add a new location based on user input from the add location dialog.
+
+        Args:
+            e: The event that triggered this action.
+        """
         # Validate form fields
         if not self.name_field.value:
             # Show error message
@@ -2037,7 +2201,11 @@ class LocationsTab(BaseTab):
         self.close_dialog(None)
 
     def edit_location(self, e):
-        """Edit an existing location."""
+        """Display a dialog for editing an existing location.
+
+        Args:
+            e: The event that triggered this action, containing the location ID to edit.
+        """
         try:
             # Get the location ID from the event data
             location_id = e.control.data
@@ -2095,7 +2263,11 @@ class LocationsTab(BaseTab):
                 self.page.update()
 
     def save_location_edit(self, location_id):
-        """Save the edited location."""
+        """Save changes made to a location in the edit dialog.
+
+        Args:
+            location_id: The ID of the location being edited.
+        """
         try:
             # Find the location in the database
             location = self.db.query(Location).filter(Location.id == location_id).first()
@@ -2160,7 +2332,13 @@ class LocationsTab(BaseTab):
         self.close_dialog(None)
 
     def delete_location(self, e):
-        """Delete a location."""
+        """Initiate the deletion process for a location.
+
+        Displays a confirmation dialog before proceeding with deletion.
+
+        Args:
+            e: The event that triggered this action, containing the location ID to delete.
+        """
         try:
             # Get the location ID from the event data
             location_id = e.control.data
@@ -2201,7 +2379,11 @@ class LocationsTab(BaseTab):
                 self.page.update()
 
     def confirm_delete_location(self, location_id):
-        """Confirm deletion of a location."""
+        """Confirm and execute the deletion of a location.
+
+        Args:
+            location_id: The ID of the location to be deleted.
+        """
         try:
             # Find the location in the database
             location = self.db.query(Location).filter(Location.id == location_id).first()
@@ -2261,7 +2443,18 @@ class LocationsTab(BaseTab):
 
 
 class CategoriesTab(BaseTab):
+    """A tab for managing task categories in the application.
+
+    This tab provides functionality to view, add, edit, and delete task categories.
+    It displays categories in a table format with search and CRUD operations,
+    including the ability to toggle category status and assign colors.
+    """
     def __init__(self):
+        """Initialize the Categories tab.
+
+        Sets up the UI elements including search field, add button, and category table.
+        Loads initial category data from the database.
+        """
         super().__init__(entity_name="Category", search_label="Search Categories")
 
         # Load categories from database
@@ -2285,7 +2478,14 @@ class CategoriesTab(BaseTab):
         ]
 
     def build_category_table(self):
-        """Build the category table with current categories."""
+        """Build and return a DataTable widget displaying all categories.
+
+        The table includes columns for name, description, subcategories, color, status, and actions.
+        Each row represents a category with edit, delete, and toggle status action buttons.
+
+        Returns:
+            ft.DataTable: A configured DataTable widget showing category information.
+        """
         columns = [
             ft.DataColumn(ft.Text("Name", color=ft.colors.BLACK)),
             ft.DataColumn(ft.Text("Description", color=ft.colors.BLACK)),
@@ -2371,7 +2571,12 @@ class CategoriesTab(BaseTab):
         )
 
     def load_categories_from_db(self):
-        """Load categories from the database."""
+        """Load categories from the database into the application.
+
+        Attempts to query categories from the database. If the query fails,
+        falls back to a predefined set of category data. Maps database color codes
+        to Flet color values for UI display.
+        """
         try:
             # Query all categories from the database
             db_categories = self.db.query(Category).all()
@@ -2444,13 +2649,21 @@ class CategoriesTab(BaseTab):
             ]
 
     def close_dialog(self, e):
-        """Close the dialog."""
+        """Close any currently open dialog.
+
+        Args:
+            e: The event that triggered this action.
+        """
         if self.page and self.page.dialog:
             self.page.dialog.open = False
             self.page.update()
 
     def show_add_category_dialog(self, e):
-        """Show dialog to add a new category."""
+        """Display a dialog for adding a new category.
+
+        Args:
+            e: The event that triggered this action.
+        """
         if self.page:
             # Create text fields for the dialog
             self.name_field = ft.TextField(label="Category Name", autofocus=True)
@@ -2496,7 +2709,11 @@ class CategoriesTab(BaseTab):
             self.page.update()
 
     def add_category(self, e):
-        """Add a new category to the system."""
+        """Add a new category based on user input from the add category dialog.
+
+        Args:
+            e: The event that triggered this action.
+        """
         # Validate form fields
         if not self.name_field.value:
             # Show error message
@@ -2595,7 +2812,11 @@ class CategoriesTab(BaseTab):
         self.close_dialog(None)
 
     def edit_category(self, e):
-        """Edit an existing category."""
+        """Display a dialog for editing an existing category.
+
+        Args:
+            e: The event that triggered this action, containing the category ID to edit.
+        """
         try:
             # Get the category ID from the event data
             category_id = e.control.data
@@ -2671,7 +2892,11 @@ class CategoriesTab(BaseTab):
                 self.page.update()
 
     def save_category_edit(self, category_id):
-        """Save the edited category."""
+        """Save changes made to a category in the edit dialog.
+
+        Args:
+            category_id: The ID of the category being edited.
+        """
         try:
             # Find the category in the database
             category = self.db.query(Category).filter(Category.id == category_id).first()
@@ -2748,7 +2973,13 @@ class CategoriesTab(BaseTab):
         self.close_dialog(None)
 
     def delete_category(self, e):
-        """Delete a category."""
+        """Initiate the deletion process for a category.
+
+        Displays a confirmation dialog before proceeding with deletion.
+
+        Args:
+            e: The event that triggered this action, containing the category ID to delete.
+        """
         try:
             # Get the category ID from the event data
             category_id = e.control.data
@@ -2789,7 +3020,14 @@ class CategoriesTab(BaseTab):
                 self.page.update()
 
     def confirm_delete_category(self, category_id):
-        """Confirm deletion of a category."""
+        """Confirm and execute the deletion of a category.
+
+        Permanently removes the category from both the database and UI after confirmation.
+        Updates the UI to reflect the deletion and shows appropriate status messages.
+
+        Args:
+            category_id: The ID of the category to be deleted.
+        """
         try:
             # Find the category in the database
             category = self.db.query(Category).filter(Category.id == category_id).first()
@@ -2848,7 +3086,14 @@ class CategoriesTab(BaseTab):
         self.close_dialog(None)
 
     def toggle_category_status(self, e):
-        """Toggle category active status."""
+        """Toggle the active/inactive status of a category.
+
+        Updates both the database and UI to reflect the status change.
+        Shows appropriate success/error messages to the user.
+
+        Args:
+            e: The event that triggered this action, containing the category ID to toggle.
+        """
         try:
             # Get the category ID from the event data
             category_id = e.control.data
@@ -2912,7 +3157,17 @@ class CategoriesTab(BaseTab):
 
 
 class SystemSettingsTab(BaseTab):
+    """A tab for managing system-wide settings in the application.
+
+    Provides configuration options for general application settings,
+    email server configuration, and backup settings.
+    """
     def __init__(self):
+        """Initialize the System Settings tab.
+
+        Sets up all UI controls for various system settings sections
+        including general settings, email settings, and backup settings.
+        """
         super().__init__(entity_name="System", search_label=None)
         self.db = SessionLocal()
 
@@ -3127,13 +3382,21 @@ class SystemSettingsTab(BaseTab):
         ]
 
     def load_settings(self):
-        """Load system settings from the database."""
+        """Load system settings from the database.
+
+        Placeholder for future implementation to load saved settings.
+        Currently uses default values for all settings.
+        """
         # In a real application, you would load settings from the database
         # For now, we'll just use the default values
         pass
 
     def backup_now(self, e):
-        """Perform a manual backup."""
+        """Initiate an immediate manual backup of the system.
+
+        Args:
+            e: The event that triggered this action.
+        """
         if self.page:
             self.page.snack_bar = ft.SnackBar(
                 content=ft.Text("Backup initiated successfully", color=ft.colors.WHITE),
@@ -3143,7 +3406,11 @@ class SystemSettingsTab(BaseTab):
             self.page.update()
 
     def save_settings(self, e):
-        """Save system settings."""
+        """Save all system settings to persistent storage.
+
+        Args:
+            e: The event that triggered this action.
+        """
         if self.page:
             self.page.snack_bar = ft.SnackBar(
                 content=ft.Text("Settings saved successfully", color=ft.colors.WHITE),
@@ -3154,7 +3421,17 @@ class SystemSettingsTab(BaseTab):
 
 
 class SettingsView(ft.Container):
+    """The main settings view container that hosts all settings tabs.
+
+    Manages the tabbed interface for user management, locations,
+    categories, and system settings.
+    """
+
     def __init__(self):
+        """Initialize the Settings View.
+
+        Creates all tab instances and sets up the tabbed interface.
+        """
         super().__init__()
         self._page = None
 
@@ -3169,10 +3446,20 @@ class SettingsView(ft.Container):
 
     @property
     def page(self):
+        """Get the current page associated with this view.
+
+        Returns:
+            The page object this view is attached to.
+        """
         return self._page
 
     @page.setter
     def page(self, value):
+        """Set the page for this view and all its tabs.
+
+        Args:
+            value: The page object to associate with this view.
+        """
         print(f"SettingsView: Setting page to {value}")
         self._page = value
         # Pass the page to all tabs immediately when it's set
@@ -3229,7 +3516,11 @@ class SettingsView(ft.Container):
         self.expand = True
 
     def did_mount(self):
-        """Called when the view is mounted to the page."""
+        """Callback called when the view is mounted to the page.
+
+        Handles any initialization that needs to occur after the view
+        is attached to the page.
+        """
         print("SettingsView.did_mount called")
         # No need to pass the page to tabs here as it's done in the page setter
         # Just make sure we have a page
@@ -3240,6 +3531,12 @@ class SettingsView(ft.Container):
             print(f"UserManagementTab.page is {self.user_management_tab.page}")
 
     def build_content(self):
+        """Build and return the main content structure for the settings view.
+
+        Returns:
+            A Column widget containing the settings title and tabs.
+        """
+
         return ft.Column(
             [
                 ft.Text(

@@ -11,8 +11,28 @@ from flet import (
     padding,
 )
 
+"""PreventPlus UI Components Module.
+
+This module contains custom Flet UI components for the PreventPlus application,
+including statistic cards, activity items, and the main dashboard view.
+"""
+
 
 class StatCard(Container):
+    """A styled card component for displaying statistics.
+
+    Args:
+        title: The label/title for the statistic
+        value: The numeric value to display
+        icon: The icon to display alongside the value
+        color: The primary color for the card
+
+    Displays:
+        - An icon on the left
+        - Statistic title (smaller text)
+        - Statistic value (large bold text)
+    """
+
     def __init__(self, title, value, icon, color):
         content = Card(
             content=Container(
@@ -53,6 +73,21 @@ class StatCard(Container):
 
 
 class RecentActivityItem(Container):
+    """A component for displaying recent activity items.
+
+    Args:
+        title: The main title/heading of the activity
+        description: Detailed description of the activity
+        time: When the activity occurred
+        status: Current status (determines color coding)
+
+    Features:
+        - Status badge with color coding
+        - Title and description text
+        - Timestamp display
+        - Clean border and spacing
+    """
+
     def __init__(self, title, description, time, status):
         content = Row(
             [
@@ -113,6 +148,15 @@ class RecentActivityItem(Container):
 
 
 class DashboardView(Column):
+    """The main dashboard view showing key metrics and quick actions.
+
+    Features:
+        - Statistics cards for different entry statuses
+        - Quick action buttons
+        - Database integration for real-time data
+        - Responsive layout
+    """
+
     def __init__(self):
         super().__init__()
 
@@ -137,6 +181,14 @@ class DashboardView(Column):
         self.setup_ui()
 
     def load_data_from_database(self):
+        """Load dashboard statistics and recent activities from database.
+
+        Queries:
+            - Total entry count
+            - Counts by status (open, ongoing, completed, escalated)
+            - Recent entries for activity feed
+        """
+
         # Connect to the database and load entries
         from app.db.database import SessionLocal
         from app.db.models import LogbookEntry, StatusEnum
@@ -209,6 +261,14 @@ class DashboardView(Column):
         self.recent_activities = recent_activities
 
     def setup_ui(self):
+        """Initialize and arrange all UI components.
+
+        Creates:
+            - Statistic cards in a responsive row
+            - Quick action buttons with enhanced styling
+            - Proper spacing and alignment
+        """
+
         # Create stat cards
         stat_cards = Row(
             [
@@ -429,7 +489,12 @@ class DashboardView(Column):
         self.expand = True
 
     def show_dialog(self, title, message):
-        """Show a dialog with the given title and message."""
+        """Display an alert dialog with given title and message.
+
+        Args:
+            title: Dialog title text
+            message: Content message text
+        """
         # Create a new dialog each time to avoid issues with reusing dialogs
         dialog = ft.AlertDialog(
             modal=True,
@@ -453,7 +518,12 @@ class DashboardView(Column):
             self.update()
 
     def close_dialog(self, e, dialog=None):
-        """Close the dialog."""
+        """Close the currently open dialog.
+
+        Args:
+            e: Event object
+            dialog: Optional specific dialog to close
+        """
         if dialog:
             dialog.open = False
         else:
@@ -466,7 +536,14 @@ class DashboardView(Column):
             self.update()
 
     def show_new_entry_dialog(self, e):
-        """Navigate to the New Entry view."""
+        """Handle new entry creation flow.
+
+        Features:
+            - Validates required fields
+            - Creates related records (locations/categories)
+            - Updates dashboard stats
+            - Shows success/error feedback
+        """
         print("New Entry button clicked")
         if self.page:
             # Import here to avoid circular imports
@@ -740,7 +817,12 @@ class DashboardView(Column):
             self.page.go("/recent_activity")
 
     def show_search_dialog(self, e):
-        """Navigate to the Search view."""
+        """Handle search view navigation and results display.
+
+        Note:
+            Currently shows demo results - would connect to real
+            database search in production.
+        """
         print("Search button clicked")
         if self.page:
             # Import here to avoid circular imports
